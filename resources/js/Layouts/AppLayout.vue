@@ -12,11 +12,28 @@ const page = usePage();
 const auth = computed(() => page.props.auth || {});
 const user = computed(() => auth.value.user);
 const isLoggedIn = computed(() => !!user.value);
+
+// Generate avatar initials from user name
+const getUserInitials = computed(() => {
+    if (!user.value) return 'G'; // Guest
+    
+    const nameParts = user.value.name.split(' ');
+    if (nameParts.length >= 2) {
+        return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
+    }
+    return nameParts[0][0].toUpperCase();
+});
+
+// Get cart item count
+const cartItemCount = computed(() => {
+    const cart = page.props.cart || {};
+    return Object.keys(cart).length;
+});
 </script>
 
 <template>
     <div>
-        <div class="min-h-screen bg-cream-100">
+        <div class="min-h-screen bg-cream-50">
             <nav class="bg-coffee-800 border-b border-coffee-700 shadow">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
@@ -32,24 +49,45 @@ const isLoggedIn = computed(() => !!user.value);
                                     Home
                                 </NavLink>
                                 
+                                <NavLink :href="route('products.index')" :active="route().current('products.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
+                                    Shop
+                                </NavLink>
+                                
                                 <NavLink v-if="isLoggedIn" :href="route('swipe.index')" :active="route().current('swipe.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
                                     Discover Products
                                 </NavLink>
+                                
                                 <NavLink v-if="isLoggedIn" :href="route('recommendations.index')" :active="route().current('recommendations.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
                                     Recommendations
                                 </NavLink>
+                                
                                 <NavLink v-if="isLoggedIn" :href="route('swipe.history')" :active="route().current('swipe.history')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
                                     Swipe History
                                 </NavLink>
                             </div>
                         </div>
 
-                        <div class="hidden sm:flex sm:items-center sm:ml-6">
+                        <div class="hidden sm:flex sm:items-center sm:ml-6 space-x-4">
+                            <!-- Cart Icon -->
+                            <Link :href="route('cart.index')" class="flex items-center text-cream-100 hover:text-white relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <span v-if="cartItemCount > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ cartItemCount }}
+                                </span>
+                            </Link>
+                            
                             <!-- For logged-in users -->
-                            <div v-if="isLoggedIn" class="ml-3 relative">
+                            <div v-if="isLoggedIn" class="relative">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <button class="flex items-center text-sm font-medium text-cream-100 hover:text-white hover:border-cream-300 focus:outline-none transition duration-150 ease-in-out">
+                                            <!-- User Avatar Circle -->
+                                            <div class="w-8 h-8 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-2 border border-cream-200">
+                                                {{ getUserInitials }}
+                                            </div>
+                                            
                                             <div>{{ user.name }}</div>
 
                                             <div class="ml-1">
@@ -75,12 +113,12 @@ const isLoggedIn = computed(() => !!user.value);
                             </div>
 
                             <!-- For guests -->
-                            <div v-else-if="!route().current('home')" class="ml-3 flex items-center space-x-4">
+                            <div v-else class="flex items-center space-x-4">
                                 <Link :href="route('login')" class="text-cream-100 hover:text-white transition duration-150 ease-in-out">
                                     Log in
                                 </Link>
 
-                                <<Link :href="route('register')" class="ml-4 px-4 py-2 bg-coffee-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-coffee-700 focus:bg-coffee-700 active:bg-coffee-800 focus:outline-none focus:ring-2 focus:ring-coffee-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                <Link :href="route('register')" class="px-4 py-2 bg-coffee-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-coffee-700 focus:bg-coffee-700 active:bg-coffee-800 focus:outline-none focus:ring-2 focus:ring-coffee-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                     Register
                                 </Link>
                             </div>
@@ -105,22 +143,41 @@ const isLoggedIn = computed(() => !!user.value);
                             Home
                         </ResponsiveNavLink>
                         
+                        <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.index')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
+                            Shop
+                        </ResponsiveNavLink>
+                        
                         <ResponsiveNavLink v-if="isLoggedIn" :href="route('swipe.index')" :active="route().current('swipe.index')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
                             Discover Products
                         </ResponsiveNavLink>
+                        
                         <ResponsiveNavLink v-if="isLoggedIn" :href="route('recommendations.index')" :active="route().current('recommendations.index')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
                             Recommendations
                         </ResponsiveNavLink>
+                        
                         <ResponsiveNavLink v-if="isLoggedIn" :href="route('swipe.history')" :active="route().current('swipe.history')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
                             Swipe History
+                        </ResponsiveNavLink>
+                        
+                        <ResponsiveNavLink :href="route('cart.index')" :active="route().current('cart.index')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
+                            Cart
+                            <span v-if="cartItemCount > 0" class="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 inline-flex items-center justify-center">
+                                {{ cartItemCount }}
+                            </span>
                         </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
                     <div v-if="isLoggedIn" class="pt-4 pb-1 border-t border-coffee-700">
-                        <div class="px-4">
-                            <div class="font-medium text-base text-cream-100">{{ user.name }}</div>
-                            <div class="font-medium text-sm text-cream-300">{{ user.email }}</div>
+                        <div class="px-4 flex items-center">
+                            <!-- User Avatar Circle -->
+                            <div class="w-8 h-8 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-3 border border-cream-200">
+                                {{ getUserInitials }}
+                            </div>
+                            <div>
+                                <div class="font-medium text-base text-cream-100">{{ user.name }}</div>
+                                <div class="font-medium text-sm text-cream-300">{{ user.email }}</div>
+                            </div>
                         </div>
 
                         <div class="mt-3 space-y-1">
@@ -150,6 +207,21 @@ const isLoggedIn = computed(() => !!user.value);
                 </div>
             </nav>
 
+            <!-- Flash Messages -->
+            <div v-if="$page.props.flash && ($page.props.flash.success || $page.props.flash.error)" 
+                class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                <div v-if="$page.props.flash.success" 
+                    class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" 
+                    role="alert">
+                    {{ $page.props.flash.success }}
+                </div>
+                <div v-if="$page.props.flash.error" 
+                    class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" 
+                    role="alert">
+                    {{ $page.props.flash.error }}
+                </div>
+            </div>
+
             <!-- Page Heading -->
             <header class="bg-white shadow" v-if="$slots.header">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -161,6 +233,35 @@ const isLoggedIn = computed(() => !!user.value);
             <main>
                 <slot />
             </main>
+            
+            <!-- Footer -->
+            <footer class="bg-coffee-900 text-cream-100 py-8 mt-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">Unboxed</h3>
+                            <p class="text-cream-300">Discover products you'll love with our innovative swipe-to-discover platform.</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">Quick Links</h3>
+                            <ul class="space-y-2">
+                                <li><Link href="/" class="text-cream-300 hover:text-white">Home</Link></li>
+                                <li><Link :href="route('products.index')" class="text-cream-300 hover:text-white">Shop</Link></li>
+                                <li><Link :href="route('swipe.index')" class="text-cream-300 hover:text-white">Discover</Link></li>
+                                <li><Link :href="route('cart.index')" class="text-cream-300 hover:text-white">Cart</Link></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">Contact Us</h3>
+                            <p class="text-cream-300">Email: support@unboxed.com</p>
+                            <p class="text-cream-300">Phone: (555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-8 border-t border-coffee-700 text-center text-cream-400 text-sm">
+                        &copy; {{ new Date().getFullYear() }} Unboxed. All rights reserved.
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
 </template>

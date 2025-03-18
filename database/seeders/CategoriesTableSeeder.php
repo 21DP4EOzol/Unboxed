@@ -11,22 +11,51 @@ class CategoriesTableSeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            'Electronics' => 'Electronic devices and gadgets',
-            'Clothing' => 'Fashion clothing for men and women',
-            'Home & Kitchen' => 'Products for your home and kitchen',
-            'Books' => 'Books across various genres',
-            'Sports & Outdoors' => 'Sports equipment and outdoor gear',
-            'Beauty & Personal Care' => 'Beauty products and personal care items',
-            'Toys & Games' => 'Toys and games for all ages',
+            'Men\'s Clothing' => [
+                'description' => 'Clothing items for men',
+                'slug' => 'mens-clothing'
+            ],
+            'Women\'s Clothing' => [
+                'description' => 'Clothing items for women',
+                'slug' => 'womens-clothing'
+            ],
+            'Footwear' => [
+                'description' => 'Shoes and boots for all occasions',
+                'slug' => 'footwear'
+            ],
+            'Accessories' => [
+                'description' => 'Fashion accessories to complete your look',
+                'slug' => 'accessories'
+            ],
+            'Electronics' => [
+                'description' => 'Electronic devices and gadgets',
+                'slug' => 'electronics'
+            ],
+            'Home & Kitchen' => [
+                'description' => 'Products for your home and kitchen',
+                'slug' => 'home-kitchen'
+            ],
+            'Beauty & Personal Care' => [
+                'description' => 'Beauty products and personal care items',
+                'slug' => 'beauty-personal-care'
+            ],
         ];
         
-        foreach ($categories as $name => $description) {
-            Category::create([
-                'name' => $name,
-                'slug' => Str::slug($name),
-                'description' => $description,
-                'active' => true,
-            ]);
+        $this->command->info('Seeding categories...');
+        
+        foreach ($categories as $name => $data) {
+            $category = Category::firstOrCreate(
+                ['slug' => $data['slug']],
+                [
+                    'name' => $name,
+                    'description' => $data['description'],
+                    'active' => true,
+                ]
+            );
+            
+            $this->command->info("Category '{$name}' processed");
         }
+        
+        $this->command->info('Categories seeded successfully!');
     }
 }

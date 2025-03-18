@@ -69,19 +69,19 @@ onUnmounted(() => {
 
     <AppLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Discover Products</h2>
+            <h2 class="font-semibold text-xl text-coffee-800 leading-tight">Discover Products</h2>
         </template>
 
-        <div class="py-12">
+        <div class="py-12 bg-cream-50">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-coffee-200">
                     <div class="flex justify-center">
                         <div class="w-full max-w-md">
                             <!-- Swipe Cards -->
                             <div class="relative h-96">
                                 <div v-if="remainingProducts.length === 0" class="flex flex-col items-center justify-center h-full">
-                                    <p class="text-xl font-medium text-gray-800">No more products to swipe!</p>
-                                    <p class="text-gray-600 mt-2">Check back later for new items.</p>
+                                    <p class="text-xl font-medium text-coffee-800">No more products to swipe!</p>
+                                    <p class="text-coffee-600 mt-2">Check back later for new items.</p>
                                 </div>
                                 
                                 <div v-for="(product, index) in remainingProducts" 
@@ -98,22 +98,22 @@ onUnmounted(() => {
                                          transform: index > 0 ? `scale(${0.95 - (index - 1) * 0.05}) translateY(${(index - 1) * 10}px)` : ''
                                      }">
                                     
-                                    <div class="bg-white rounded-xl shadow-lg overflow-hidden h-full flex flex-col">
+                                    <div class="bg-white rounded-xl shadow-lg overflow-hidden h-full flex flex-col border border-coffee-200">
                                         <!-- Product Image -->
-                                        <div class="h-3/5 bg-gray-200 relative">
+                                        <div class="h-3/5 bg-cream-100 relative">
                                             <img v-if="product.images && product.images.length > 0" 
                                                  :src="`/storage/${product.images[0]}`" 
                                                  alt="Product Image" 
                                                  class="w-full h-full object-cover" />
                                             <div v-else class="w-full h-full flex items-center justify-center">
-                                                <span class="text-gray-400">No image available</span>
+                                                <span class="text-coffee-400">No image available</span>
                                             </div>
                                             
                                             <!-- Categories badges -->
                                             <div class="absolute top-2 left-2 flex flex-wrap gap-1">
                                                 <span v-for="category in product.categories" 
                                                       :key="category.id"
-                                                      class="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+                                                      class="px-2 py-1 bg-coffee-600 text-white text-xs rounded-full">
                                                     {{ category.name }}
                                                 </span>
                                             </div>
@@ -121,11 +121,11 @@ onUnmounted(() => {
                                         
                                         <!-- Product Info -->
                                         <div class="p-4 flex-grow">
-                                            <h3 class="text-xl font-bold text-gray-800">{{ product.name }}</h3>
-                                            <p class="text-gray-600 mt-1">{{ product.description.substring(0, 100) }}{{ product.description.length > 100 ? '...' : '' }}</p>
+                                            <h3 class="text-xl font-bold text-coffee-800">{{ product.name }}</h3>
+                                            <p class="text-coffee-600 mt-1">{{ product.description.substring(0, 100) }}{{ product.description.length > 100 ? '...' : '' }}</p>
                                             <div class="mt-4 flex justify-between items-center">
-                                                <span class="text-2xl font-bold text-blue-600">${{ product.price }}</span>
-                                                <span class="text-sm text-gray-500">{{ product.stock }} in stock</span>
+                                                <span class="text-2xl font-bold text-coffee-700">${{ product.price }}</span>
+                                                <span class="text-sm text-coffee-500">{{ product.stock }} in stock</span>
                                             </div>
                                         </div>
                                     </div>
@@ -135,14 +135,14 @@ onUnmounted(() => {
                             <!-- Swipe Controls -->
                             <div class="flex justify-center mt-6 space-x-8">
                                 <button @click="swipe('left')" 
-                                        class="flex items-center justify-center w-16 h-16 bg-white border border-red-400 rounded-full shadow-md text-red-500 hover:bg-red-50 transition"
+                                        class="flex items-center justify-center w-16 h-16 bg-white border border-coffee-300 rounded-full shadow-md text-coffee-600 hover:bg-cream-100 transition"
                                         :disabled="isAnimating || remainingProducts.length === 0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                                 <button @click="swipe('right')" 
-                                        class="flex items-center justify-center w-16 h-16 bg-white border border-green-400 rounded-full shadow-md text-green-500 hover:bg-green-50 transition"
+                                        class="flex items-center justify-center w-16 h-16 bg-white border border-coffee-300 rounded-full shadow-md text-coffee-600 hover:bg-cream-100 transition"
                                         :disabled="isAnimating || remainingProducts.length === 0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -151,7 +151,7 @@ onUnmounted(() => {
                             </div>
                             
                             <!-- Instructions -->
-                            <div class="mt-6 text-center text-gray-500 text-sm">
+                            <div class="mt-6 text-center text-coffee-600 text-sm">
                                 <p>Swipe right to like, swipe left to dislike.</p>
                                 <p class="mt-1">You can also use keyboard arrows: ← →</p>
                             </div>
