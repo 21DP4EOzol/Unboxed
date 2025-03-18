@@ -161,9 +161,7 @@ function clearCart() {
                                             <span class="text-coffee-800 font-bold text-xl">${{ cartTotal.toFixed(2) }}</span>
                                         </div>
                                     </div>
-                                    <Link :href="route('checkout')" class="block w-full px-4 py-3 bg-coffee-600 text-white text-center rounded-md hover:bg-coffee-700 transition">
-                                        Proceed to Checkout
-                                    </Link>
+                                    
                                 </div>
                             </div>
                         </div>
