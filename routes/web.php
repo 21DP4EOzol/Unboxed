@@ -26,17 +26,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
     
-    // Profile routes (already in your file)
+    // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // Swipe routes 
+    // Swipe routes - require login
     Route::get('/swipe', [App\Http\Controllers\SwipeController::class, 'index'])->name('swipe.index');
     Route::post('/swipe', [App\Http\Controllers\SwipeController::class, 'store'])->name('swipe.store');
     Route::get('/swipe/history', [App\Http\Controllers\SwipeController::class, 'history'])->name('swipe.history');
 
-    // Recommendation route
+    // Recommendation route - requires login
     Route::get('/recommendations', [App\Http\Controllers\RecommendationController::class, 'index'])->name('recommendations.index');
 });
 
@@ -47,7 +47,5 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('categories', CategoryController::class);
     Route::resource('orders', OrderController::class);
 });
-
-
 
 require __DIR__.'/auth.php';
