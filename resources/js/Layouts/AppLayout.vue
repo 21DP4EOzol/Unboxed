@@ -6,8 +6,11 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+import NavSearchBar from '@/Components/NavSearchBar.vue';
+import Sidebar from '@/Components/Sidebar.vue';
 
 const showingNavigationDropdown = ref(false);
+const showingSidebar = ref(false);
 const page = usePage();
 const auth = computed(() => page.props.auth || {});
 const user = computed(() => auth.value.user);
@@ -38,6 +41,16 @@ const cartItemCount = computed(() => {
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
+                            <!-- Sidebar Toggle Button -->
+                            <button 
+                                @click="showingSidebar = true"
+                                class="mr-3 flex items-center text-cream-100 hover:text-white focus:outline-none"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                            
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('home')">
                                     <div class="w-10 h-10 bg-cream-200 text-coffee-800 rounded-lg flex items-center justify-center text-xl font-bold">U</div>
@@ -68,6 +81,9 @@ const cartItemCount = computed(() => {
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ml-6 space-x-4">
+                            <!-- Search Bar -->
+                            <NavSearchBar class="w-full max-w-md mr-4" />
+                            
                             <!-- Cart Icon -->
                             <Link :href="route('cart.index')" class="flex items-center text-cream-100 hover:text-white relative">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -262,6 +278,12 @@ const cartItemCount = computed(() => {
                     </div>
                 </div>
             </footer>
+            
+            <!-- Sidebar Component -->
+            <Sidebar 
+                :is-open="showingSidebar" 
+                @close="showingSidebar = false" 
+            />
         </div>
     </div>
 </template>

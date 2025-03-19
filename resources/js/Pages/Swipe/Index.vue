@@ -135,14 +135,14 @@ onUnmounted(() => {
                             <!-- Swipe Controls -->
                             <div class="flex justify-center mt-6 space-x-8">
                                 <button @click="swipe('left')" 
-                                        class="flex items-center justify-center w-16 h-16 bg-white border border-coffee-300 rounded-full shadow-md text-coffee-600 hover:bg-cream-100 transition"
+                                        class="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cream-50 to-white border border-coffee-300 rounded-full shadow-md text-coffee-600 hover:from-coffee-400 hover:to-coffee-600 hover:text-white transition-all duration-300"
                                         :disabled="isAnimating || remainingProducts.length === 0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                                 <button @click="swipe('right')" 
-                                        class="flex items-center justify-center w-16 h-16 bg-white border border-coffee-300 rounded-full shadow-md text-coffee-600 hover:bg-cream-100 transition"
+                                        class="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cream-50 to-white border border-coffee-300 rounded-full shadow-md text-coffee-600 hover:from-coffee-600 hover:to-coffee-400 hover:text-white transition-all duration-300"
                                         :disabled="isAnimating || remainingProducts.length === 0">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -9,17 +9,7 @@ const props = defineProps({
     filters: Object
 });
 
-const search = ref(props.filters.search || '');
 const selectedSort = ref(props.filters.sort || 'newest');
-
-// Debounce search input
-let searchTimeout;
-watch(search, (value) => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        applyFilters({ search: value });
-    }, 500);
-});
 
 const applyFilters = (newFilters) => {
     router.get(route('products.index'), {
@@ -47,24 +37,7 @@ const changeSort = (sort) => {
 
         <div class="py-12 bg-cream-50">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <!-- Search Bar -->
-                    <div class="w-full md:w-1/3">
-                        <div class="relative">
-                            <input 
-                                type="text" 
-                                v-model="search"
-                                placeholder="Search products..."
-                                class="w-full pl-10 pr-4 py-2 border border-coffee-300 rounded-md focus:ring-coffee-500 focus:border-coffee-500"
-                            />
-                            <div class="absolute left-3 top-2.5 text-coffee-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="mb-6 flex justify-end">
                     <!-- Sort Options -->
                     <div class="flex items-center">
                         <span class="text-coffee-700 mr-2">Sort by:</span>
