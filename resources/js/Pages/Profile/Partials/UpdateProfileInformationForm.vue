@@ -36,8 +36,15 @@ const form = useForm({
         </header>
 
         <form
-            @submit.prevent="form.patch(route('profile.update'))"
+            @submit.prevent="form.post(route('profile.update'), {
+                preserveScroll: true,
+                forceFormData: true,
+                onFinish: () => {
+                    form.profile_picture = null;
+                }
+            })"
             class="mt-6 space-y-6"
+            enctype="multipart/form-data"
         >
             <div>
                 <InputLabel for="name" value="Name" class="text-coffee-700" />
@@ -113,7 +120,7 @@ const form = useForm({
                     </p>
                 </Transition>
             </div>
-                        <div class="mt-6">
+            <div class="mt-6">
                 <InputLabel for="profile_picture" value="Profile Picture" class="text-coffee-700" />
                 
                 <div class="mt-2 flex items-center">
@@ -135,6 +142,9 @@ const form = useForm({
                     <label for="profile_picture" class="bg-coffee-600 hover:bg-coffee-700 text-white px-3 py-1 rounded cursor-pointer">
                         Choose Image
                     </label>
+                    <span v-if="form.profile_picture" class="ml-3 text-coffee-600">
+                        File selected: {{ form.profile_picture.name }}
+                    </span>
                 </div>
                 
                 <InputError class="mt-2" :message="form.errors.profile_picture" />
