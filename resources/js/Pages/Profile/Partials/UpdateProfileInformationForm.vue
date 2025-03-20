@@ -4,6 +4,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 defineProps({
     mustVerifyEmail: {
@@ -21,6 +22,27 @@ const form = useForm({
     email: user.email,
     profile_picture: null,
 });
+
+const submit = () => {
+    // Create a FormData object for multipart form data
+    const formData = new FormData();
+    formData.append('_method', 'PATCH'); // Method spoofing for Laravel
+    formData.append('name', form.name);
+    formData.append('email', form.email);
+    
+    if (form.profile_picture) {
+        formData.append('profile_picture', form.profile_picture);
+    }
+    
+    // Use post with the FormData object
+    form.patch(route('profile.update'), {
+        preserveScroll: true,
+        data: formData, // Use the FormData object
+        onFinish: () => {
+            form.profile_picture = null;
+        }
+    });
+};
 </script>
 
 <template>
@@ -36,13 +58,7 @@ const form = useForm({
         </header>
 
         <form
-            @submit.prevent="form.post(route('profile.update'), {
-                preserveScroll: true,
-                forceFormData: true,
-                onFinish: () => {
-                    form.profile_picture = null;
-                }
-            })"
+            @submit.prevent="submit"
             class="mt-6 space-y-6"
             enctype="multipart/form-data"
         >
