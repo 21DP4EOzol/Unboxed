@@ -50,7 +50,7 @@ const isLoggedIn = computed(() => !!page.props.auth?.user);
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <!-- Discover Products Card -->
-                            <div class="bg-gradient-to-br from-amber-500 to-coffee-700 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
+                            <div class="bg-gradient-to-br from-coffee-500 to-coffee-700 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
                                 <div class="p-6">
                                     <h3 class="text-xl font-semibold mb-2">Discover Products</h3>
                                     <p class="mb-6">Swipe through our catalog to find products you love!</p>
@@ -68,10 +68,10 @@ const isLoggedIn = computed(() => !!page.props.auth?.user);
                             </div>
                             
                             <!-- Recommendations Card -->
-                            <div class="bg-gradient-to-br from-coffee-600 to-amber-800 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
+                            <div class="bg-gradient-to-br from-coffee-500 to-coffee-700 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
                                 <div class="p-6">
                                     <h3 class="text-xl font-semibold mb-2">Your Recommendations</h3>
-                                    <p class="mb-6">Check out products selected just for you!</p>
+                                    <p class="mb-6">Check out products you've selected just for yourself!</p>
                                     <div v-if="isLoggedIn">
                                         <Link :href="route('recommendations.index')" class="inline-block px-4 py-2 bg-white text-coffee-700 rounded-lg font-medium hover:bg-cream-100 transition">
                                             View Recommendations
@@ -86,7 +86,7 @@ const isLoggedIn = computed(() => !!page.props.auth?.user);
                             </div>
                             
                             <!-- Swipe History Card -->
-                            <div class="bg-gradient-to-br from-amber-600 to-coffee-600 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
+                            <div class="bg-gradient-to-br from-coffee-500 to-coffee-700 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
                                 <div class="p-6">
                                     <h3 class="text-xl font-semibold mb-2">Swipe History</h3>
                                     <p class="mb-6">Review the products you've liked and disliked.</p>

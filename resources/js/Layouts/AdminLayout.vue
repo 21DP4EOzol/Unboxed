@@ -25,7 +25,7 @@ const getUserInitials = computed(() => {
 <template>
     <div>
         <div class="min-h-screen bg-cream-50">
-            <nav class="bg-coffee-900 border-b border-coffee-800 shadow">
+            <nav class="bg-gradient-to-r from-coffee-800 to-coffee-700 border-b border-coffee-900 shadow">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">

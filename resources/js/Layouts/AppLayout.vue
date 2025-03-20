@@ -37,7 +37,7 @@ const cartItemCount = computed(() => {
 <template>
     <div>
         <div class="min-h-screen bg-cream-50">
-            <nav class="bg-coffee-800 border-b border-coffee-700 shadow">
+            <nav class="bg-gradient-to-r from-coffee-700 to-coffee-600 border-b border-coffee-800 shadow">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
@@ -251,7 +251,7 @@ const cartItemCount = computed(() => {
             </main>
             
             <!-- Footer -->
-            <footer class="bg-coffee-900 text-cream-100 py-8 mt-12">
+            <footer class="bg-gradient-to-r from-coffee-800 to-coffee-700 text-coffee-100 py-8 mt-12">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div>

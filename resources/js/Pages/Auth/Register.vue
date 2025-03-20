@@ -23,9 +23,9 @@ const submit = () => {
 <template>
     <div class="min-h-screen flex items-center justify-center bg-coffee-100 p-4">
         <div class="w-full max-w-md">
-            <div class="bg-coffee-600 p-6 rounded-t-lg shadow-lg">
+            <div class="bg-gradient-to-r from-coffee-600 to-coffee-700 p-6 rounded-t-lg shadow-lg">
                 <h2 class="text-2xl font-bold text-white text-center flex items-center justify-center">
-                    <div class="w-10 h-10 bg-cream-200 text-coffee-800 rounded-lg flex items-center justify-center text-xl font-bold mr-3">
+                    <div class="w-10 h-10 bg-coffee-300 text-coffee-800 rounded-lg flex items-center justify-center text-xl font-bold mr-3">
                         U
                     </div>
                     Register
