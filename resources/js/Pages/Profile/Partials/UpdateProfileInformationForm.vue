@@ -19,6 +19,7 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.name,
     email: user.email,
+    profile_picture: null,
 });
 </script>
 
@@ -111,6 +112,32 @@ const form = useForm({
                         Saved.
                     </p>
                 </Transition>
+            </div>
+                        <div class="mt-6">
+                <InputLabel for="profile_picture" value="Profile Picture" class="text-coffee-700" />
+                
+                <div class="mt-2 flex items-center">
+                    <!-- Show current profile picture if it exists -->
+                    <div v-if="user.profile_picture" class="mr-3">
+                        <img :src="`/storage/${user.profile_picture}`" alt="Profile Picture" class="w-16 h-16 rounded-full object-cover" />
+                    </div>
+                    <div v-else class="mr-3 w-16 h-16 rounded-full bg-coffee-200 flex items-center justify-center text-coffee-700 font-bold text-xl">
+                        {{ user.name.charAt(0).toUpperCase() }}
+                    </div>
+                    
+                    <input 
+                        type="file" 
+                        id="profile_picture" 
+                        @change="form.profile_picture = $event.target.files[0]"
+                        class="hidden" 
+                        accept="image/*"
+                    />
+                    <label for="profile_picture" class="bg-coffee-600 hover:bg-coffee-700 text-white px-3 py-1 rounded cursor-pointer">
+                        Choose Image
+                    </label>
+                </div>
+                
+                <InputError class="mt-2" :message="form.errors.profile_picture" />
             </div>
         </form>
     </section>

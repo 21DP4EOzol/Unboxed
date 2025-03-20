@@ -5,6 +5,7 @@ import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { Head } from '@inertiajs/vue3';
+import TwoFactorAuthenticationForm from './Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
     mustVerifyEmail: {
@@ -53,6 +54,13 @@ const activeTab = ref('profile');
                     >
                         Delete Account
                     </button>
+                    <button 
+                        @click="activeTab = 'twoFactor'" 
+                        class="px-4 py-2 mr-2 mb-2 rounded-t-lg font-medium"
+                        :class="activeTab === 'twoFactor' ? 'bg-white text-coffee-800 border border-coffee-200 border-b-0' : 'bg-coffee-100 text-coffee-700 hover:bg-coffee-200'"
+                    >
+                        Two-Factor Auth
+                    </button>
                 </div>
 
                 <!-- Tab Content -->
@@ -70,6 +78,9 @@ const activeTab = ref('profile');
 
                 <div v-if="activeTab === 'delete'" class="bg-white p-6 shadow sm:rounded-lg border border-coffee-200">
                     <DeleteUserForm class="max-w-xl" />
+                </div>
+                <div v-if="activeTab === 'twoFactor'" class="bg-white p-6 shadow sm:rounded-lg border border-coffee-200">
+                    <TwoFactorAuthenticationForm />
                 </div>
             </div>
         </div>
