@@ -118,6 +118,9 @@ const cartItemCount = computed(() => {
                                         <DropdownLink :href="route('profile.edit')" class="block w-full px-4 py-2 text-left text-sm leading-5 text-coffee-700 hover:bg-cream-100 focus:outline-none focus:bg-cream-100 transition duration-150 ease-in-out">
                                             Profile
                                         </DropdownLink>
+                                        <DropdownLink :href="route('orders.index')" class="block w-full px-4 py-2 text-left text-sm leading-5 text-coffee-700 hover:bg-cream-100 focus:outline-none focus:bg-cream-100 transition duration-150 ease-in-out">
+                                            My Orders
+                                        </DropdownLink>
                                         <DropdownLink v-if="user && user.is_admin" :href="route('admin.dashboard')" class="block w-full px-4 py-2 text-left text-sm leading-5 text-coffee-700 hover:bg-cream-100 focus:outline-none focus:bg-cream-100 transition duration-150 ease-in-out">
                                             Admin Dashboard
                                         </DropdownLink>
@@ -199,6 +202,9 @@ const cartItemCount = computed(() => {
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
                                 Profile
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('orders.index')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
+                                My Orders
                             </ResponsiveNavLink>
                             <ResponsiveNavLink v-if="user && user.is_admin" :href="route('admin.dashboard')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
                                 Admin Dashboard

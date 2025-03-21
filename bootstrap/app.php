@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Add this line to register your admin middleware
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'two-factor' => \App\Http\Middleware\TwoFactorMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

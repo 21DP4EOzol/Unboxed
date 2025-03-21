@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -12,7 +14,13 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        $orders = Order::with('user')
+            ->latest()
+            ->paginate(10);
+            
+        return Inertia::render('Admin/Orders/Index', [
+            'orders' => $orders
+        ]);
     }
 
     /**
@@ -20,7 +28,8 @@ class OrderController extends Controller
      */
     public function create()
     {
-        //
+        // Not typically needed for orders as they're created through the checkout process
+        return redirect()->route('admin.orders.index');
     }
 
     /**
@@ -28,7 +37,8 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Not typically needed for orders as they're created through the checkout process
+        return redirect()->route('admin.orders.index');
     }
 
     /**
@@ -36,7 +46,12 @@ class OrderController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $order = Order::with(['user', 'items.product'])
+            ->findOrFail($id);
+            
+        return Inertia::render('Admin/Orders/Show', [
+            'order' => $order
+        ]);
     }
 
     /**
@@ -44,7 +59,15 @@ class OrderController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $order = Order::with(['user', 'items.product'])
+            ->findOrFail($id);
+            
+        return Inertia::render('Admin/Orders/Edit', [
+            'order' => $order,
+            'statuses' => [
+                'pending', 'processing', 'shipped', 'delivered', 'cancelled'
+            ]
+        ]);
     }
 
     /**
@@ -52,7 +75,23 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        
+        $validated = $request->validate([
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'notes' => 'nullable|string',
+        ]);
+        
+        $order->status = $validated['status'];
+        
+        if (isset($validated['notes'])) {
+            $order->notes = $validated['notes'];
+        }
+        
+        $order->save();
+        
+        return redirect()->route('admin.orders.index')
+            ->with('success', 'Order updated successfully.');
     }
 
     /**
@@ -60,6 +99,21 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        
+        // For safety, we'll only allow deletion of pending orders
+        if ($order->status !== 'pending') {
+            return redirect()->route('admin.orders.index')
+                ->with('error', 'Only pending orders can be deleted.');
+        }
+        
+        // Delete order items first
+        $order->items()->delete();
+        
+        // Delete the order
+        $order->delete();
+        
+        return redirect()->route('admin.orders.index')
+            ->with('success', 'Order deleted successfully.');
     }
 }
