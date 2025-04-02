@@ -31,7 +31,12 @@ const getUserInitials = computed(() => {
                         <div class="flex">
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('admin.dashboard')">
-                                    <div class="w-10 h-10 bg-cream-200 text-coffee-900 rounded-lg flex items-center justify-center text-xl font-bold">U</div>
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-coffee-500 to-coffee-700 text-cream-100 rounded-lg flex items-center justify-center text-xl font-bold shadow-md border-2 border-cream-200">
+                                            <span class="transform -rotate-3">U</span>
+                                        </div>
+                                        
+                                    </div>
                                 </Link>
                             </div>
 

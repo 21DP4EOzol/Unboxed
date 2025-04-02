@@ -70,6 +70,8 @@ Route::middleware(['auth', 'verified', 'two-factor'])->group(function () {
 Route::get('/products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
 
+Route::get('/categories', [App\Http\Controllers\CategoriesController::class, 'index'])->name('categories.index');
+
 // API Routes
 Route::prefix('api')->name('api.')->group(function () {
     Route::get('/search/suggestions', [App\Http\Controllers\Api\SearchController::class, 'suggestions'])->name('search.suggestions');

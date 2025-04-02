@@ -1,7 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -18,6 +18,7 @@ const props = defineProps({
 
 const page = usePage();
 const isLoggedIn = computed(() => !!page.props.auth?.user);
+const showLoginPrompt = ref(true);
 </script>
 
 <template>
@@ -27,7 +28,16 @@ const isLoggedIn = computed(() => !!page.props.auth?.user);
         <div class="bg-cream-50 py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- Login prompt for guests -->
-                <div v-if="!isLoggedIn" class="bg-coffee-100 rounded-lg p-6 mb-6 border border-coffee-200">
+                <div v-if="!isLoggedIn && showLoginPrompt" class="bg-coffee-100 rounded-lg p-6 mb-6 border border-coffee-200 relative">
+                    <button 
+                        @click="showLoginPrompt = false" 
+                        class="absolute top-2 right-2 text-coffee-500 hover:text-coffee-700 transition"
+                        aria-label="Close"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                     <div class="flex flex-col md:flex-row items-center justify-between">
                         <div>
                             <h3 class="text-lg font-semibold text-coffee-800">Create an account to unlock all features!</h3>
@@ -106,7 +116,12 @@ const isLoggedIn = computed(() => !!page.props.auth?.user);
                         
                         <!-- Featured Categories Section -->
                         <div class="mt-12">
-                            <h3 class="text-xl font-bold text-coffee-800 mb-6">Featured Categories</h3>
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-bold text-coffee-800">Featured Categories</h3>
+                                <Link :href="route('categories.index')" class="text-coffee-600 hover:text-coffee-800 hover:underline">
+                                    View All
+                                </Link>
+                            </div>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <Link :href="route('products.index', { category: 'mens-clothing' })" class="bg-coffee-100 rounded-lg p-4 text-center hover:bg-coffee-200 transition group">
                                     <div class="h-32 bg-white rounded-lg mb-2 flex items-center justify-center">
@@ -136,7 +151,7 @@ const isLoggedIn = computed(() => !!page.props.auth?.user);
                         </div>
                         
                         <!-- Featured Products Section -->
-                        <div class="mt-12">
+                        <div class="mt-16">
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-xl font-bold text-coffee-800">Featured Products</h3>
                                 <Link :href="route('products.index')" class="text-coffee-600 hover:text-coffee-800 hover:underline">View All</Link>

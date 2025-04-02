@@ -7,10 +7,10 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavSearchBar from '@/Components/NavSearchBar.vue';
-import Sidebar from '@/Components/Sidebar.vue';
+// Removed Sidebar import
 
 const showingNavigationDropdown = ref(false);
-const showingSidebar = ref(false);
+// Removed showingSidebar ref
 const page = usePage();
 const auth = computed(() => page.props.auth || {});
 const user = computed(() => auth.value.user);
@@ -41,19 +41,16 @@ const cartItemCount = computed(() => {
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
                         <div class="flex">
-                            <!-- Sidebar Toggle Button -->
-                            <button 
-                                @click="showingSidebar = true"
-                                class="mr-3 flex items-center text-cream-100 hover:text-white focus:outline-none"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            </button>
+                            <!-- Removed sidebar toggle button -->
                             
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('home')">
-                                    <div class="w-10 h-10 bg-cream-200 text-coffee-800 rounded-lg flex items-center justify-center text-xl font-bold">U</div>
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-coffee-500 to-coffee-700 text-cream-100 rounded-lg flex items-center justify-center text-xl font-bold shadow-md border-2 border-cream-200">
+                                            <span class="transform -rotate-3">U</span>
+                                        </div>
+                                        
+                                    </div>
                                 </Link>
                             </div>
 
@@ -64,6 +61,11 @@ const cartItemCount = computed(() => {
                                 
                                 <NavLink :href="route('products.index')" :active="route().current('products.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
                                     Shop
+                                </NavLink>
+                                
+                                <!-- Categories link in desktop menu -->
+                                <NavLink :href="route('categories.index')" :active="route().current('categories.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
+                                    Categories
                                 </NavLink>
                                 
                                 <NavLink v-if="isLoggedIn" :href="route('swipe.index')" :active="route().current('swipe.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
@@ -164,6 +166,10 @@ const cartItemCount = computed(() => {
                         
                         <ResponsiveNavLink :href="route('products.index')" :active="route().current('products.index')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
                             Shop
+                        </ResponsiveNavLink>
+                        
+                        <ResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.index')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
+                            Categories
                         </ResponsiveNavLink>
                         
                         <ResponsiveNavLink v-if="isLoggedIn" :href="route('swipe.index')" :active="route().current('swipe.index')" class="text-cream-100 hover:text-white hover:bg-coffee-700">
@@ -285,11 +291,7 @@ const cartItemCount = computed(() => {
                 </div>
             </footer>
             
-            <!-- Sidebar Component -->
-            <Sidebar 
-                :is-open="showingSidebar" 
-                @close="showingSidebar = false" 
-            />
+            <!-- Removed Sidebar Component -->
         </div>
     </div>
 </template>
