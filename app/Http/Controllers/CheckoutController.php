@@ -140,7 +140,7 @@ class CheckoutController extends Controller
             if ($product && $product->stock >= $details['quantity']) {
                 $subtotal = $details['price'] * $details['quantity'];
                 
-                // Parse the ID to extract size and color if they're embedded in the ID
+                // Make sure we capture size and color from the cart details
                 $size = $details['size'] ?? null;
                 $color = $details['color'] ?? null;
                 
@@ -149,8 +149,8 @@ class CheckoutController extends Controller
                     // Assuming format like "4-M-Green" where 4 is ID, M is size, Green is color
                     $parts = explode('-', $id);
                     if (count($parts) >= 3) {
-                        $size = $parts[1] ?? null;
-                        $color = $parts[2] ?? null;
+                        $size = $parts[1] !== 'no-size' ? $parts[1] : null;
+                        $color = $parts[2] !== 'no-color' ? $parts[2] : null;
                     }
                 }
                 

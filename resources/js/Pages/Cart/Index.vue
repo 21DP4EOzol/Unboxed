@@ -90,9 +90,9 @@ function clearCart() {
                                                 <div class="flex items-center">
                                                     <div class="w-16 h-16 mr-4 bg-cream-100 rounded overflow-hidden">
                                                         <img v-if="item.image" 
-                                                             :src="`/storage/${item.image}`" 
-                                                             alt="Product Image" 
-                                                             class="w-full h-full object-cover" />
+                                                            :src="`/storage/${item.image}`" 
+                                                            alt="Product Image" 
+                                                            class="w-full h-full object-cover" />
                                                     </div>
                                                     <div>
                                                         <div class="text-coffee-800 font-medium">{{ item.name }}</div>

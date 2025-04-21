@@ -145,6 +145,11 @@ const getStatusClass = (status) => {
                                                     <div v-if="item.product" class="text-xs text-coffee-500">
                                                         SKU: {{ item.product.sku }}
                                                     </div>
+                                                    <div v-if="item.size || item.color" class="text-xs text-coffee-500 mt-1">
+                                                        <span v-if="item.size">Size: {{ item.size }}</span>
+                                                        <span v-if="item.size && item.color"> | </span>
+                                                        <span v-if="item.color">Color: {{ item.color }}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>

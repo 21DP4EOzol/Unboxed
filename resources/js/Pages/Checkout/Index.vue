@@ -228,6 +228,11 @@ const submitOrder = () => {
                                             <div>
                                                 <p class="text-coffee-800 font-medium">{{ item.name }}</p>
                                                 <p class="text-coffee-500 text-sm">Qty: {{ item.quantity }}</p>
+                                                <div v-if="item.size || item.color" class="text-coffee-500 text-sm">
+                                                    <span v-if="item.size">Size: {{ item.size }}</span>
+                                                    <span v-if="item.size && item.color"> | </span>
+                                                    <span v-if="item.color">Color: {{ item.color }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                         <p class="text-coffee-800 font-medium">${{ item.subtotal.toFixed(2) }}</p>

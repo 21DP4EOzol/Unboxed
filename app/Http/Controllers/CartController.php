@@ -144,7 +144,26 @@ class CartController extends Controller
         $items = [];
         
         foreach ($cart as $id => $details) {
+            // Calculate subtotal
             $subtotal = $details['price'] * $details['quantity'];
+            
+            // Parse the ID to extract size and color if they're embedded in the ID
+            $size = $details['size'] ?? null;
+            $color = $details['color'] ?? null;
+            
+            // If size and color aren't explicitly stored in the details, try to extract from the ID
+            if ((!$size || !$color) && !is_numeric($id)) {
+                // Assuming format like "4-M-Green" where 4 is ID, M is size, Green is color
+                $parts = explode('-', $id);
+                if (count($parts) >= 3) {
+                    if (!$size && $parts[1] !== 'no-size') {
+                        $size = $parts[1];
+                    }
+                    if (!$color && $parts[2] !== 'no-color') {
+                        $color = $parts[2];
+                    }
+                }
+            }
             
             $items[] = [
                 'id' => $id,
@@ -152,7 +171,9 @@ class CartController extends Controller
                 'price' => $details['price'],
                 'quantity' => $details['quantity'],
                 'subtotal' => $subtotal,
-                'image' => $details['image']
+                'image' => $details['image'],
+                'size' => $size,
+                'color' => $color
             ];
         }
         
