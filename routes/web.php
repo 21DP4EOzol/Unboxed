@@ -45,6 +45,7 @@ Route::middleware(['auth', 'verified', 'two-factor'])->group(function () {
     Route::get('/swipe', [App\Http\Controllers\SwipeController::class, 'index'])->name('swipe.index');
     Route::post('/swipe', [App\Http\Controllers\SwipeController::class, 'store'])->name('swipe.store');
     Route::get('/swipe/history', [App\Http\Controllers\SwipeController::class, 'history'])->name('swipe.history');
+    Route::delete('/swipe/remove-selected', [App\Http\Controllers\SwipeController::class, 'removeSelected'])->name('swipe.remove-selected');
 
     // Recommendation route - requires login
     Route::get('/recommendations', [App\Http\Controllers\RecommendationController::class, 'index'])->name('recommendations.index');

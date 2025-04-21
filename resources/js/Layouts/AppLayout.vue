@@ -8,10 +8,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavSearchBar from '@/Components/NavSearchBar.vue';
 
-// Removed Sidebar import
-
 const showingNavigationDropdown = ref(false);
-// Removed showingSidebar ref
 const page = usePage();
 const auth = computed(() => page.props.auth || {});
 const user = computed(() => auth.value.user);
@@ -41,21 +38,20 @@ const cartItemCount = computed(() => {
             <nav class="bg-gradient-to-r from-coffee-700 to-coffee-600 border-b border-coffee-800 shadow">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between h-16">
-                        <div class="flex">
-                            <!-- Removed sidebar toggle button -->
-                            
+                        <div class="flex items-center space-x-8">
+                            <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('home')">
                                     <div class="flex items-center">
                                         <div class="w-10 h-10 bg-gradient-to-br from-coffee-500 to-coffee-700 text-cream-100 rounded-lg flex items-center justify-center text-xl font-bold shadow-md border-2 border-cream-200">
                                             <span class="transform -rotate-3">U</span>
                                         </div>
-                                        
                                     </div>
                                 </Link>
                             </div>
 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <!-- Navigation Links - Improved spacing -->
+                            <div class="hidden space-x-6 sm:flex">
                                 <NavLink :href="route('home')" :active="route().current('home')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
                                     Home
                                 </NavLink>
@@ -64,13 +60,12 @@ const cartItemCount = computed(() => {
                                     Shop
                                 </NavLink>
                                 
-                                <!-- Categories link in desktop menu -->
                                 <NavLink :href="route('categories.index')" :active="route().current('categories.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
                                     Categories
                                 </NavLink>
                                 
                                 <NavLink v-if="isLoggedIn" :href="route('swipe.index')" :active="route().current('swipe.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
-                                    Discover Products
+                                    Discover
                                 </NavLink>
                                 
                                 <NavLink v-if="isLoggedIn" :href="route('recommendations.index')" :active="route().current('recommendations.index')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
@@ -78,17 +73,17 @@ const cartItemCount = computed(() => {
                                 </NavLink>
                                 
                                 <NavLink v-if="isLoggedIn" :href="route('swipe.history')" :active="route().current('swipe.history')" class="text-cream-100 hover:text-white border-b-2 hover:border-cream-300">
-                                    Swipe History
+                                    History
                                 </NavLink>
                             </div>
                         </div>
 
-                        <div class="hidden sm:flex sm:items-center sm:ml-6 space-x-4">
-                            <!-- Search Bar -->
-                            <NavSearchBar class="w-full max-w-md mr-4" />
+                        <div class="hidden sm:flex sm:items-center sm:space-x-4">
+                            <!-- Search Bar - with proper width -->
+                            <NavSearchBar class="w-64" />
                             
                             <!-- Cart Icon -->
-                            <Link :href="route('cart.index')" class="flex items-center text-cream-100 hover:text-white relative">
+                            <Link :href="route('cart.index')" class="flex items-center justify-center text-cream-100 hover:text-white relative w-10 h-10">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
@@ -98,16 +93,17 @@ const cartItemCount = computed(() => {
                             </Link>
                             
                             <!-- For logged-in users -->
-                            <div v-if="isLoggedIn" class="relative">
+                            <div v-if="isLoggedIn" class="relative pl-3">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
-                                        <button class="flex items-center text-sm font-medium text-cream-100 hover:text-white hover:border-cream-300 focus:outline-none transition duration-150 ease-in-out">
-                                            <!-- User Avatar Circle -->
-                                            <div class="w-8 h-8 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-2 border border-cream-200">
+                                        <button class="flex items-center text-sm font-medium text-cream-100 hover:text-white hover:border-cream-300 focus:outline-none transition duration-150 ease-in-out group">
+                                            <!-- User Avatar Circle - Fixed to be properly round -->
+                                            <div class="w-8 h-8 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-2 border border-cream-200 overflow-hidden">
                                                 {{ getUserInitials }}
                                             </div>
                                             
-                                            <div>{{ user.name }}</div>
+                                            <!-- Truncate long usernames -->
+                                            <div class="max-w-24 truncate">{{ user.name }}</div>
 
                                             <div class="ml-1">
                                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -197,7 +193,7 @@ const cartItemCount = computed(() => {
                     <div v-if="isLoggedIn" class="pt-4 pb-1 border-t border-coffee-700">
                         <div class="px-4 flex items-center">
                             <!-- User Avatar Circle -->
-                            <div class="w-8 h-8 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-3 border border-cream-200">
+                            <div class="w-10 h-10 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-3 border border-cream-200">
                                 {{ getUserInitials }}
                             </div>
                             <div>
@@ -291,8 +287,6 @@ const cartItemCount = computed(() => {
                     </div>
                 </div>
             </footer>
-            
-            <!-- Removed Sidebar Component -->
         </div>
     </div>
 </template>

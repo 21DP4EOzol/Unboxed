@@ -82,4 +82,26 @@ class SwipeController extends Controller
             'dislikedProducts' => $dislikedProducts,
         ]);
     }
+
+    /**
+     * Remove selected products from swipe history
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function removeSelected(Request $request)
+    {
+        $validated = $request->validate([
+            'productIds' => 'required|array',
+            'productIds.*' => 'required|exists:products,id',
+        ]);
+
+        // Delete swipes for the selected products
+        Swipe::where('user_id', auth()->id())
+            ->whereIn('product_id', $validated['productIds'])
+            ->delete();
+
+        return redirect()->route('swipe.history')
+            ->with('success', count($validated['productIds']) . ' products removed from your swipe history and added back to discovery.');
+    }
 }
