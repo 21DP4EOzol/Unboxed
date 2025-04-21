@@ -2,10 +2,26 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Pagination from '@/Components/Pagination.vue';
+import { ref } from 'vue';
 
-defineProps({
-    products: Object
+const props = defineProps({
+    products: Object,
+    filter: {
+        type: String,
+        default: 'all'
+    }
 });
+
+const activeFilter = ref(props.filter);
+
+const filterProducts = () => {
+    router.get(route('admin.products.index'), {
+        filter: activeFilter.value
+    }, {
+        preserveState: true,
+        replace: true
+    });
+};
 </script>
 
 <template>
@@ -25,6 +41,15 @@ defineProps({
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border border-coffee-200">
+                        <!-- Filter Controls -->
+                        <div class="mb-4 flex justify-end">
+                            <select v-model="activeFilter" @change="filterProducts" class="border border-coffee-300 rounded p-">
+                                <option value="all">All Products</option>
+                                <option value="active">Active Only</option>
+                                <option value="inactive">Inactive Only</option>
+                            </select>
+                        </div>
+                        
                         <div class="overflow-x-auto">
                             <table class="min-w-full bg-white">
                                 <thead>
@@ -39,7 +64,8 @@ defineProps({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="product in products.data" :key="product.id">
+                                    <tr v-for="product in products.data" :key="product.id" 
+                                        :class="{'bg-gray-100': !product.active}">
                                         <td class="py-2 px-4 border-b border-coffee-100">{{ product.id }}</td>
                                         <td class="py-2 px-4 border-b border-coffee-100">
                                             <img v-if="product.images && product.images.length > 0" 
@@ -66,6 +92,8 @@ defineProps({
                                                 <Link :href="route('admin.products.edit', product.id)" class="text-coffee-600 hover:text-coffee-800">
                                                     Edit
                                                 </Link>
+                                                
+                                                <!-- Toggle activation button -->
                                                 <Link 
                                                     :href="route('admin.products.toggle-active', product.id)" 
                                                     method="patch" 
@@ -74,6 +102,7 @@ defineProps({
                                                 >
                                                     {{ product.active ? 'Deactivate' : 'Activate' }}
                                                 </Link>
+                                                
                                                 <Link :href="route('admin.products.destroy', product.id)" method="delete" as="button" 
                                                       class="text-coffee-600 hover:text-coffee-800"
                                                       @click.prevent="
