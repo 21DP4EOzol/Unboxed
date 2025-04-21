@@ -90,6 +90,7 @@ Route::middleware(['auth', 'verified', 'two-factor', 'admin'])->prefix('admin')-
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('orders', OrderController::class);
+    Route::patch('/products/{product}/toggle-active', [ProductController::class, 'toggleActive'])->name('products.toggle-active');
 });
 
 require __DIR__.'/auth.php';

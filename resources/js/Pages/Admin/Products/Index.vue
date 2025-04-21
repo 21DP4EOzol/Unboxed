@@ -66,6 +66,14 @@ defineProps({
                                                 <Link :href="route('admin.products.edit', product.id)" class="text-coffee-600 hover:text-coffee-800">
                                                     Edit
                                                 </Link>
+                                                <Link 
+                                                    :href="route('admin.products.toggle-active', product.id)" 
+                                                    method="patch" 
+                                                    as="button" 
+                                                    class="text-coffee-600 hover:text-coffee-800"
+                                                >
+                                                    {{ product.active ? 'Deactivate' : 'Activate' }}
+                                                </Link>
                                                 <Link :href="route('admin.products.destroy', product.id)" method="delete" as="button" 
                                                       class="text-coffee-600 hover:text-coffee-800"
                                                       @click.prevent="
