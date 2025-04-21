@@ -27,6 +27,12 @@ class Category extends Model
         return $this->belongsToMany(Product::class, 'product_category');
     }
     
+    // Relationship with swipes
+    public function swipes()
+    {
+        return $this->hasMany(Swipe::class);
+    }
+    
     // Scopes
     public function scopeActive($query)
     {

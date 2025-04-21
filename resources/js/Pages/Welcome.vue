@@ -41,7 +41,7 @@ const showLoginPrompt = ref(true);
                     <div class="flex flex-col md:flex-row items-center justify-between">
                         <div>
                             <h3 class="text-lg font-semibold text-coffee-800">Create an account to unlock all features!</h3>
-                            <p class="text-coffee-600 mt-2">Sign up to swipe through products, get personalized recommendations, and more.</p>
+                            <p class="text-coffee-600 mt-2">Sign up to swipe through products and categories, get personalized recommendations, and more.</p>
                         </div>
                         <div class="mt-4 md:mt-0 flex space-x-4">
                             <Link :href="route('login')" class="px-4 py-2 bg-coffee-600 text-white rounded-lg font-medium hover:bg-coffee-700 transition">
@@ -65,7 +65,7 @@ const showLoginPrompt = ref(true);
                                     <h3 class="text-xl font-semibold mb-2">Discover Products</h3>
                                     <p class="mb-6">Swipe through our catalog to find products you love!</p>
                                     <div v-if="isLoggedIn">
-                                        <Link :href="route('swipe.index')" class="inline-block px-4 py-2 bg-white text-coffee-600 rounded-lg font-medium hover:bg-cream-100 transition">
+                                        <Link :href="route('swipe.index', { type: 'product' })" class="inline-block px-4 py-2 bg-white text-coffee-600 rounded-lg font-medium hover:bg-cream-100 transition">
                                             Start Swiping
                                         </Link>
                                     </div>
@@ -77,39 +77,64 @@ const showLoginPrompt = ref(true);
                                 </div>
                             </div>
                             
-                            <!-- Recommendations Card -->
-                            <div class="bg-gradient-to-br from-coffee-500 to-coffee-700 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
+                            <!-- Discover Categories Card -->
+                            <div class="bg-gradient-to-br from-coffee-600 to-coffee-800 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
                                 <div class="p-6">
-                                    <h3 class="text-xl font-semibold mb-2">Your Recommendations</h3>
-                                    <p class="mb-6">Check out products you've selected just for yourself!</p>
+                                    <h3 class="text-xl font-semibold mb-2">Explore Categories</h3>
+                                    <p class="mb-6">Swipe through categories to help us understand your style!</p>
                                     <div v-if="isLoggedIn">
-                                        <Link :href="route('recommendations.index')" class="inline-block px-4 py-2 bg-white text-coffee-700 rounded-lg font-medium hover:bg-cream-100 transition">
-                                            View Recommendations
+                                        <Link :href="route('swipe.index', { type: 'category' })" class="inline-block px-4 py-2 bg-white text-coffee-700 rounded-lg font-medium hover:bg-cream-100 transition">
+                                            Swipe Categories
                                         </Link>
                                     </div>
                                     <div v-else>
                                         <Link :href="route('login')" class="inline-block px-4 py-2 bg-white text-coffee-700 rounded-lg font-medium hover:bg-cream-100 transition">
-                                            Login for Recommendations
+                                            Login to Swipe
                                         </Link>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Swipe History Card -->
+                            <!-- Recommendations Card -->
                             <div class="bg-gradient-to-br from-coffee-500 to-coffee-700 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
                                 <div class="p-6">
-                                    <h3 class="text-xl font-semibold mb-2">Swipe History</h3>
-                                    <p class="mb-6">Review the products you've liked and disliked.</p>
+                                    <h3 class="text-xl font-semibold mb-2">Your Recommendations</h3>
+                                    <p class="mb-6">Check out products selected just for you!</p>
                                     <div v-if="isLoggedIn">
-                                        <Link :href="route('swipe.history')" class="inline-block px-4 py-2 bg-white text-coffee-600 rounded-lg font-medium hover:bg-cream-100 transition">
-                                            View History
+                                        <Link :href="route('recommendations.index')" class="inline-block px-4 py-2 bg-white text-coffee-600 rounded-lg font-medium hover:bg-cream-100 transition">
+                                            View Recommendations
                                         </Link>
                                     </div>
                                     <div v-else>
                                         <Link :href="route('login')" class="inline-block px-4 py-2 bg-white text-coffee-600 rounded-lg font-medium hover:bg-cream-100 transition">
-                                            Login to View History
+                                            Login for Recommendations
                                         </Link>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Swipe History, Reviews Cards Row -->
+                        <div v-if="isLoggedIn" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <!-- Swipe History Card -->
+                            <div class="bg-gradient-to-br from-cream-500 to-cream-700 rounded-lg shadow-md overflow-hidden text-coffee-900 transform transition-transform hover:scale-105 duration-300">
+                                <div class="p-6">
+                                    <h3 class="text-xl font-semibold mb-2">Swipe History</h3>
+                                    <p class="mb-6">Review the products and categories you've liked and disliked.</p>
+                                    <Link :href="route('swipe.history')" class="inline-block px-4 py-2 bg-white text-cream-700 rounded-lg font-medium hover:bg-cream-100 transition">
+                                        View History
+                                    </Link>
+                                </div>
+                            </div>
+                            
+                            <!-- Orders Card -->
+                            <div class="bg-gradient-to-br from-coffee-600 to-coffee-800 rounded-lg shadow-md overflow-hidden text-white transform transition-transform hover:scale-105 duration-300">
+                                <div class="p-6">
+                                    <h3 class="text-xl font-semibold mb-2">Your Orders</h3>
+                                    <p class="mb-6">Track your orders and purchase history.</p>
+                                    <Link :href="route('orders.index')" class="inline-block px-4 py-2 bg-white text-coffee-700 rounded-lg font-medium hover:bg-cream-100 transition">
+                                        View Orders
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -146,6 +171,12 @@ const showLoginPrompt = ref(true);
                                         <span class="text-3xl">🧣</span>
                                     </div>
                                     <h4 class="font-medium text-coffee-800 group-hover:text-coffee-900">Accessories</h4>
+                                </Link>
+                            </div>
+                            <!-- Option to swipe categories -->
+                            <div v-if="isLoggedIn" class="mt-4 text-center">
+                                <Link :href="route('swipe.index', { type: 'category' })" class="inline-block px-6 py-2 bg-coffee-600 text-white rounded-lg font-medium hover:bg-coffee-700 transition mt-2">
+                                    Swipe Categories
                                 </Link>
                             </div>
                         </div>
@@ -191,6 +222,13 @@ const showLoginPrompt = ref(true);
                             
                             <div v-else class="text-center py-8 bg-cream-50 rounded-lg">
                                 <p class="text-coffee-600">No featured products available at the moment.</p>
+                            </div>
+                            
+                            <!-- Option to swipe products -->
+                            <div v-if="isLoggedIn" class="mt-4 text-center">
+                                <Link :href="route('swipe.index', { type: 'product' })" class="inline-block px-6 py-2 bg-coffee-600 text-white rounded-lg font-medium hover:bg-coffee-700 transition mt-2">
+                                    Discover More Products
+                                </Link>
                             </div>
                         </div>
                     </div>

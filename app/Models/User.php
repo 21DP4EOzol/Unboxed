@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 class User extends Authenticatable implements MustVerifyEmail
-
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -53,20 +52,43 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_admin' => 'boolean',
             'last_login_at' => 'datetime',
         ];
-
-        
     }
-        public function swipes()
+    
+    /**
+     * Get all swipes for the user
+     */
+    public function swipes()
     {
         return $this->hasMany(Swipe::class);
     }
+    
+    /**
+     * Get product swipes for the user
+     */
+    public function productSwipes()
+    {
+        return $this->swipes()->whereNotNull('product_id');
+    }
+    
+    /**
+     * Get category swipes for the user
+     */
+    public function categorySwipes()
+    {
+        return $this->swipes()->whereNotNull('category_id');
+    }
 
+    /**
+     * Get all orders for the user
+     */
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
-    // Helper method to check if user is admin
+    /**
+     * Helper method to check if user is admin
+     */
     public function isAdmin()
     {
         return $this->is_admin;

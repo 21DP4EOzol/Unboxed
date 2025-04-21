@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\SwipeController;
+use App\Http\Controllers\RecommendationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,13 +44,13 @@ Route::middleware(['auth', 'verified', 'two-factor'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
     // Swipe routes - require login
-    Route::get('/swipe', [App\Http\Controllers\SwipeController::class, 'index'])->name('swipe.index');
-    Route::post('/swipe', [App\Http\Controllers\SwipeController::class, 'store'])->name('swipe.store');
-    Route::get('/swipe/history', [App\Http\Controllers\SwipeController::class, 'history'])->name('swipe.history');
-    Route::delete('/swipe/remove-selected', [App\Http\Controllers\SwipeController::class, 'removeSelected'])->name('swipe.remove-selected');
+    Route::get('/swipe', [SwipeController::class, 'index'])->name('swipe.index');
+    Route::post('/swipe', [SwipeController::class, 'store'])->name('swipe.store');
+    Route::get('/swipe/history', [SwipeController::class, 'history'])->name('swipe.history');
+    Route::delete('/swipe/remove-selected', [SwipeController::class, 'removeSelected'])->name('swipe.remove-selected');
 
     // Recommendation route - requires login
-    Route::get('/recommendations', [App\Http\Controllers\RecommendationController::class, 'index'])->name('recommendations.index');
+    Route::get('/recommendations', [RecommendationController::class, 'index'])->name('recommendations.index');
 
     // Cart Routes
     Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
