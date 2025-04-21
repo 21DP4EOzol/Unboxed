@@ -17,12 +17,18 @@ class Product extends Model
         'stock',
         'sku',
         'images',
+        'available_sizes',
+        'available_colors',
+        'specifications',
         'featured',
         'active',
     ];
     
     protected $casts = [
         'images' => 'array',
+        'available_sizes' => 'array',
+        'available_colors' => 'array',
+        'specifications' => 'array',
         'featured' => 'boolean',
         'active' => 'boolean',
         'price' => 'decimal:2',

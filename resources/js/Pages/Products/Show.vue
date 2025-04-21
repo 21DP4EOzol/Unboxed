@@ -1,7 +1,8 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import BackToTopButton from '@/Components/BackToTopButton.vue';
 
 const props = defineProps({
     product: Object,
@@ -11,9 +12,16 @@ const props = defineProps({
 const quantity = ref(1);
 const currentImageIndex = ref(0);
 
+// Add these new refs
+const selectedSize = ref(props.product.available_sizes && props.product.available_sizes.length > 0 ? props.product.available_sizes[0] : null);
+const selectedColor = ref(props.product.available_colors && props.product.available_colors.length > 0 ? props.product.available_colors[0] : null);
+
+// Updated form with size and color
 const addToCartForm = useForm({
     product_id: props.product.id,
-    quantity: 1
+    quantity: 1,
+    size: selectedSize.value,
+    color: selectedColor.value
 });
 
 const incrementQuantity = () => {
@@ -34,6 +42,17 @@ const setQuantity = (value) => {
     addToCartForm.quantity = quantity.value;
 };
 
+// Add these new functions
+const updateSize = (size) => {
+    selectedSize.value = size;
+    addToCartForm.size = size;
+};
+
+const updateColor = (color) => {
+    selectedColor.value = color;
+    addToCartForm.color = color;
+};
+
 const addToCart = () => {
     addToCartForm.post(route('cart.add'), {
         preserveScroll: true,
@@ -47,6 +66,19 @@ const addToCart = () => {
 const setCurrentImage = (index) => {
     currentImageIndex.value = index;
 };
+
+// Add these computed properties
+const hasSpecifications = computed(() => {
+    return props.product.specifications && Object.keys(props.product.specifications).length > 0;
+});
+
+const hasSizeOptions = computed(() => {
+    return props.product.available_sizes && props.product.available_sizes.length > 0;
+});
+
+const hasColorOptions = computed(() => {
+    return props.product.available_colors && props.product.available_colors.length > 0;
+});
 </script>
 
 <template>
@@ -125,6 +157,38 @@ const setCurrentImage = (index) => {
                                     <p class="text-coffee-600">{{ product.description }}</p>
                                 </div>
                                 
+                                <!-- Size Selection -->
+                                <div v-if="hasSizeOptions" class="mb-6">
+                                    <div class="text-coffee-700 mb-2">Size:</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button 
+                                            v-for="size in product.available_sizes" 
+                                            :key="size"
+                                            @click="updateSize(size)"
+                                            class="px-3 py-1 border rounded-md transition-colors"
+                                            :class="size === selectedSize ? 'bg-coffee-600 text-white border-coffee-600' : 'text-coffee-700 border-coffee-300 hover:border-coffee-500'"
+                                        >
+                                            {{ size }}
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Color Selection -->
+                                <div v-if="hasColorOptions" class="mb-6">
+                                    <div class="text-coffee-700 mb-2">Color:</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button 
+                                            v-for="color in product.available_colors" 
+                                            :key="color"
+                                            @click="updateColor(color)"
+                                            class="px-3 py-1 border rounded-md transition-colors"
+                                            :class="color === selectedColor ? 'bg-coffee-600 text-white border-coffee-600' : 'text-coffee-700 border-coffee-300 hover:border-coffee-500'"
+                                        >
+                                            {{ color }}
+                                        </button>
+                                    </div>
+                                </div>
+                                
                                 <!-- Stock Status -->
                                 <div class="mb-6">
                                     <div v-if="product.stock > 0" class="text-green-600 flex items-center">
@@ -188,6 +252,17 @@ const setCurrentImage = (index) => {
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Product Specifications -->
+                        <div v-if="hasSpecifications" class="mt-8 border-t border-coffee-200 pt-6">
+                            <h3 class="text-lg font-bold text-coffee-800 mb-4">Product Specifications</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                                <div v-for="(value, key) in product.specifications" :key="key" class="py-2 border-b border-coffee-100">
+                                    <span class="text-coffee-600">{{ key }}:</span>
+                                    <span class="ml-2 text-coffee-800">{{ value }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -218,5 +293,6 @@ const setCurrentImage = (index) => {
                 </div>
             </div>
         </div>
+        <BackToTopButton />
     </AppLayout>
 </template>

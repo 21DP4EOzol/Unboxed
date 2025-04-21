@@ -21,9 +21,12 @@ const form = useForm({
     category_ids: [],
     featured: false,
     active: true,
-    images: []
+    images: [],
+    sizes_input: '',
+    colors_input: '',
 });
 
+const specifications = ref([{ key: '', value: '' }]);
 const preview = ref([]);
 
 const handleImagesChange = (e) => {
@@ -43,8 +46,57 @@ const handleImagesChange = (e) => {
     }
 };
 
+const addSpecification = () => {
+    specifications.value.push({ key: '', value: '' });
+};
+
+const removeSpecification = (index) => {
+    specifications.value.splice(index, 1);
+};
+
 const submit = () => {
+    // Convert comma-separated inputs to arrays
+    const available_sizes = form.sizes_input ? form.sizes_input.split(',').map(size => size.trim()) : [];
+    const available_colors = form.colors_input ? form.colors_input.split(',').map(color => color.trim()) : [];
+    
+    // Create a specifications object from the array of key-value pairs
+    const specificationsObj = {};
+    specifications.value.forEach(spec => {
+        if (spec.key && spec.value) {
+            specificationsObj[spec.key] = spec.value;
+        }
+    });
+
+    const formData = new FormData();
+    // Add existing fields
+    formData.append('name', form.name);
+    formData.append('description', form.description);
+    formData.append('price', form.price);
+    formData.append('stock', form.stock);
+    formData.append('sku', form.sku);
+    formData.append('featured', form.featured ? '1' : '0');
+    formData.append('active', form.active ? '1' : '0');
+    
+    // Add new fields
+    formData.append('available_sizes', JSON.stringify(available_sizes));
+    formData.append('available_colors', JSON.stringify(available_colors));
+    formData.append('specifications', JSON.stringify(specificationsObj));
+    
+    // Add category IDs
+    form.category_ids.forEach(id => {
+        formData.append('category_ids[]', id);
+    });
+    
+    // Add images
+    if (form.images) {
+        for (let i = 0; i < form.images.length; i++) {
+            formData.append(`images[${i}]`, form.images[i]);
+        }
+    }
+    
+    // Post the form
     form.post(route('admin.products.store'), {
+        data: formData,
         forceFormData: true,
         preserveScroll: true
     });
@@ -106,6 +158,62 @@ const submit = () => {
                                     </div>
                                 </div>
                                 <InputError class="mt-2" :message="form.errors.category_ids" />
+                            </div>
+
+                            <div>
+                                <InputLabel value="Available Sizes (comma separated)" />
+                                <TextInput
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    v-model="form.sizes_input"
+                                    placeholder="S, M, L, XL"
+                                />
+                                <InputError class="mt-2" :message="form.errors.available_sizes" />
+                            </div>
+
+                            <div>
+                                <InputLabel value="Available Colors (comma separated)" />
+                                <TextInput
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    v-model="form.colors_input"
+                                    placeholder="Red, Blue, Green"
+                                />
+                                <InputError class="mt-2" :message="form.errors.available_colors" />
+                            </div>
+
+                            <div>
+                                <InputLabel value="Specifications" />
+                                <div class="space-y-2 mt-1">
+                                    <div v-for="(spec, index) in specifications" :key="index" class="flex space-x-2">
+                                        <TextInput
+                                            type="text"
+                                            class="w-1/3"
+                                            v-model="spec.key"
+                                            placeholder="Material"
+                                        />
+                                        <TextInput
+                                            type="text"
+                                            class="w-2/3"
+                                            v-model="spec.value"
+                                            placeholder="100% Cotton"
+                                        />
+                                        <button 
+                                            type="button" 
+                                            @click="removeSpecification(index)" 
+                                            class="text-coffee-600 hover:text-coffee-800"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        @click="addSpecification" 
+                                        class="px-3 py-1 bg-coffee-200 text-coffee-800 rounded hover:bg-coffee-300 transition"
+                                    >
+                                        Add Specification
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

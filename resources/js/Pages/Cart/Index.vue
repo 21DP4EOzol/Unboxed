@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TextInput from '@/Components/TextInput.vue';
+import BackToTopButton from '@/Components/BackToTopButton.vue';
 
 const props = defineProps({
     cartItems: Array,
@@ -10,18 +11,18 @@ const props = defineProps({
 });
 
 const updateQuantityForm = useForm({
-    product_id: null,
+    cart_item_id: null,
     quantity: 1,
 });
 
 const removeItemForm = useForm({
-    product_id: null,
+    cart_item_id: null,
 });
 
 const clearCartForm = useForm({});
 
-function updateQuantity(productId, currentQuantity) {
-    updateQuantityForm.product_id = productId;
+function updateQuantity(cartItemId, currentQuantity) {
+    updateQuantityForm.cart_item_id = cartItemId;
     updateQuantityForm.quantity = currentQuantity;
     
     updateQuantityForm.post(route('cart.update'), {
@@ -29,9 +30,9 @@ function updateQuantity(productId, currentQuantity) {
     });
 }
 
-function removeItem(productId) {
+function removeItem(cartItemId) {
     if (confirm('Are you sure you want to remove this item?')) {
-        removeItemForm.product_id = productId;
+        removeItemForm.cart_item_id = cartItemId;
         
         removeItemForm.delete(route('cart.remove'), {
             preserveScroll: true
@@ -95,6 +96,11 @@ function clearCart() {
                                                     </div>
                                                     <div>
                                                         <div class="text-coffee-800 font-medium">{{ item.name }}</div>
+                                                        <div v-if="item.size || item.color" class="text-sm text-coffee-600 mt-1">
+                                                            <span v-if="item.size">Size: {{ item.size }}</span>
+                                                            <span v-if="item.size && item.color"> | </span>
+                                                            <span v-if="item.color">Color: {{ item.color }}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -175,5 +181,7 @@ function clearCart() {
                 </div>
             </div>
         </div>
+        
+        <BackToTopButton />
     </AppLayout>
 </template>

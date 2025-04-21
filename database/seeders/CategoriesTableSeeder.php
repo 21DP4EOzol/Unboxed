@@ -13,49 +13,65 @@ class CategoriesTableSeeder extends Seeder
         $categories = [
             'Men\'s Clothing' => [
                 'description' => 'Clothing items for men',
-                'slug' => 'mens-clothing'
+                'subcategories' => ['T-Shirts', 'Shirts', 'Pants', 'Jeans', 'Jackets']
             ],
             'Women\'s Clothing' => [
                 'description' => 'Clothing items for women',
-                'slug' => 'womens-clothing'
+                'subcategories' => ['Dresses', 'Tops', 'Skirts', 'Pants', 'Outerwear']
             ],
             'Footwear' => [
                 'description' => 'Shoes and boots for all occasions',
-                'slug' => 'footwear'
+                'subcategories' => ['Sneakers', 'Boots', 'Sandals']
             ],
             'Accessories' => [
                 'description' => 'Fashion accessories to complete your look',
-                'slug' => 'accessories'
+                'subcategories' => ['Watches', 'Jewelry', 'Bags', 'Hats', 'Scarves', 'Belts']
             ],
             'Electronics' => [
                 'description' => 'Electronic devices and gadgets',
-                'slug' => 'electronics'
+                'subcategories' => ['Smartphones', 'Laptops', 'Headphones', 'Cameras']
             ],
             'Home & Kitchen' => [
                 'description' => 'Products for your home and kitchen',
-                'slug' => 'home-kitchen'
+                'subcategories' => ['Cookware', 'Furniture', 'Decor', 'Bedding']
             ],
             'Beauty & Personal Care' => [
                 'description' => 'Beauty products and personal care items',
-                'slug' => 'beauty-personal-care'
+                'subcategories' => ['Skincare', 'Makeup', 'Haircare', 'Fragrances']
             ],
         ];
         
-        $this->command->info('Seeding categories...');
+        $createdCount = 0;
         
         foreach ($categories as $name => $data) {
-            $category = Category::firstOrCreate(
-                ['slug' => $data['slug']],
-                [
-                    'name' => $name,
-                    'description' => $data['description'],
-                    'active' => true,
-                ]
-            );
+            $category = Category::create([
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'description' => $data['description'],
+                'active' => true,
+            ]);
             
-            $this->command->info("Category '{$name}' processed");
+            $createdCount++;
+            
+            // Create subcategories to reach a total of 15
+            foreach ($data['subcategories'] as $subName) {
+                if ($createdCount >= 15) {
+                    break 2; // Break out of both loops once we hit 15
+                }
+                
+                $fullName = "$subName " . Str::singular($name);
+                
+                Category::create([
+                    'name' => $fullName,
+                    'slug' => Str::slug($fullName),
+                    'description' => "Subcategory of $name",
+                    'active' => true,
+                ]);
+                
+                $createdCount++;
+            }
         }
         
-        $this->command->info('Categories seeded successfully!');
+        $this->command->info("$createdCount categories created.");
     }
 }

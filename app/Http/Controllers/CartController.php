@@ -30,6 +30,8 @@ class CartController extends Controller
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
+            'size' => 'nullable|string',
+            'color' => 'nullable|string',
         ]);
         
         $product = Product::findOrFail($validated['product_id']);
@@ -39,19 +41,31 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Not enough stock available.');
         }
         
+        // Generate a unique cart item ID based on product ID and selected options
+        $cartItemId = $product->id;
+        
+        // Append size and color to make the cart item unique
+        if (!empty($validated['size']) || !empty($validated['color'])) {
+            $cartItemId = $product->id . '-' . 
+                        (!empty($validated['size']) ? $validated['size'] : 'no-size') . '-' . 
+                        (!empty($validated['color']) ? $validated['color'] : 'no-color');
+        }
+        
         // Get current cart
         $cart = session()->get('cart', []);
         
         // Check if item already exists in cart
-        if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity'] += $validated['quantity'];
+        if (isset($cart[$cartItemId])) {
+            $cart[$cartItemId]['quantity'] += $validated['quantity'];
         } else {
-            $cart[$product->id] = [
+            $cart[$cartItemId] = [
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
                 'quantity' => $validated['quantity'],
-                'image' => $product->images && count($product->images) > 0 ? $product->images[0] : null
+                'image' => $product->images && count($product->images) > 0 ? $product->images[0] : null,
+                'size' => $validated['size'] ?? null,
+                'color' => $validated['color'] ?? null
             ];
         }
         
@@ -67,21 +81,23 @@ class CartController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'cart_item_id' => 'required|string',
             'quantity' => 'required|integer|min:1',
         ]);
         
-        $product = Product::findOrFail($validated['product_id']);
-        
-        // Check if we have enough stock
-        if ($product->stock < $validated['quantity']) {
-            return redirect()->back()->with('error', 'Not enough stock available.');
-        }
-        
         $cart = session()->get('cart', []);
         
-        if (isset($cart[$validated['product_id']])) {
-            $cart[$validated['product_id']]['quantity'] = $validated['quantity'];
+        if (isset($cart[$validated['cart_item_id']])) {
+            // Get the product ID from the cart item
+            $productId = $cart[$validated['cart_item_id']]['id'];
+            $product = Product::findOrFail($productId);
+            
+            // Check if we have enough stock
+            if ($product->stock < $validated['quantity']) {
+                return redirect()->back()->with('error', 'Not enough stock available.');
+            }
+            
+            $cart[$validated['cart_item_id']]['quantity'] = $validated['quantity'];
             session()->put('cart', $cart);
             return redirect()->back()->with('success', 'Cart updated successfully.');
         }
@@ -95,13 +111,13 @@ class CartController extends Controller
     public function remove(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'cart_item_id' => 'required|string',
         ]);
         
         $cart = session()->get('cart', []);
         
-        if (isset($cart[$validated['product_id']])) {
-            unset($cart[$validated['product_id']]);
+        if (isset($cart[$validated['cart_item_id']])) {
+            unset($cart[$validated['cart_item_id']]);
             session()->put('cart', $cart);
             return redirect()->back()->with('success', 'Item removed from cart successfully.');
         }

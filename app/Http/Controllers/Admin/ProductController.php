@@ -44,6 +44,9 @@ class ProductController extends Controller
             'active' => 'boolean',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'available_sizes' => 'nullable|json',
+            'available_colors' => 'nullable|json',
+            'specifications' => 'nullable|json',
         ]);
         
         // Handle image uploads
@@ -66,6 +69,9 @@ class ProductController extends Controller
             'images' => $imagesPaths,
             'featured' => $validated['featured'] ?? false,
             'active' => $validated['active'] ?? true,
+            'available_sizes' => json_decode($validated['available_sizes'] ?? '[]'),
+            'available_colors' => json_decode($validated['available_colors'] ?? '[]'),
+            'specifications' => json_decode($validated['specifications'] ?? '{}'),
         ]);
         
         // Attach categories
@@ -102,9 +108,12 @@ class ProductController extends Controller
             'new_images' => 'nullable|array',
             'new_images.*' => 'image|mimes:jpeg,png,jpg|max:2048',
             'remove_images' => 'nullable|array',
+            'available_sizes' => 'nullable|json',
+            'available_colors' => 'nullable|json',
+            'specifications' => 'nullable|json',
         ]);
         
-        // Handle image uploads
+        // Handle image uploads (keep existing logic)
         $currentImages = $product->images ?? [];
         
         // Remove images if requested
@@ -136,6 +145,9 @@ class ProductController extends Controller
             'images' => array_values($currentImages), // Re-index array
             'featured' => $validated['featured'] ?? false,
             'active' => $validated['active'] ?? true,
+            'available_sizes' => json_decode($validated['available_sizes'] ?? '[]'),
+            'available_colors' => json_decode($validated['available_colors'] ?? '[]'),
+            'specifications' => json_decode($validated['specifications'] ?? '{}'),
         ]);
         
         // Sync categories

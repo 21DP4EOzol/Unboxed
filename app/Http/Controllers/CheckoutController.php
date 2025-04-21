@@ -70,16 +70,21 @@ class CheckoutController extends Controller
         
         // Create order items
         foreach ($cartItems as $item) {
+            // Make sure we're passing the id as an integer, not a string that might contain other info
+            $productId = (int)$item['id'];
+            
             OrderItem::create([
                 'order_id' => $order->id,
-                'product_id' => $item['id'],
+                'product_id' => $productId,
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
                 'subtotal' => $item['subtotal'],
+                'size' => $item['size'] ?? null,
+                'color' => $item['color'] ?? null,
             ]);
             
             // Update product stock
-            $product = Product::find($item['id']);
+            $product = Product::find($productId);
             if ($product) {
                 $product->stock -= $item['quantity'];
                 $product->save();
@@ -126,19 +131,38 @@ class CheckoutController extends Controller
         $items = [];
         
         foreach ($cart as $id => $details) {
+            // Extract the actual product ID if it contains additional information
+            $productId = is_numeric($id) ? $id : preg_replace('/[^0-9]/', '', $id);
+            
             // Verify that the product still exists and has enough stock
-            $product = Product::find($id);
+            $product = Product::find($productId);
             
             if ($product && $product->stock >= $details['quantity']) {
                 $subtotal = $details['price'] * $details['quantity'];
                 
+                // Parse the ID to extract size and color if they're embedded in the ID
+                $size = $details['size'] ?? null;
+                $color = $details['color'] ?? null;
+                
+                // If size and color aren't explicitly stored, try to extract from the ID
+                if (!$size || !$color) {
+                    // Assuming format like "4-M-Green" where 4 is ID, M is size, Green is color
+                    $parts = explode('-', $id);
+                    if (count($parts) >= 3) {
+                        $size = $parts[1] ?? null;
+                        $color = $parts[2] ?? null;
+                    }
+                }
+                
                 $items[] = [
-                    'id' => $id,
+                    'id' => $productId,
                     'name' => $details['name'],
                     'price' => $details['price'],
                     'quantity' => $details['quantity'],
                     'subtotal' => $subtotal,
-                    'image' => $details['image']
+                    'image' => $details['image'],
+                    'size' => $size,
+                    'color' => $color
                 ];
             }
         }

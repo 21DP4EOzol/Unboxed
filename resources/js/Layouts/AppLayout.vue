@@ -7,6 +7,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavSearchBar from '@/Components/NavSearchBar.vue';
+
 // Removed Sidebar import
 
 const showingNavigationDropdown = ref(false);

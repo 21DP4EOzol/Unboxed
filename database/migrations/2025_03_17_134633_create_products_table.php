@@ -20,6 +20,9 @@ return new class extends Migration
         $table->integer('stock')->default(0);
         $table->string('sku')->unique();
         $table->json('images')->nullable();
+        $table->json('available_sizes')->nullable(); 
+        $table->json('available_colors')->nullable(); 
+        $table->json('specifications')->nullable(); 
         $table->boolean('featured')->default(false);
         $table->boolean('active')->default(true);
         $table->timestamps();

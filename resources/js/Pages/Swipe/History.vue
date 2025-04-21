@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import BackToTopButton from '@/Components/BackToTopButton.vue';
 
 defineProps({
     likedProducts: Array,
@@ -87,5 +88,6 @@ defineProps({
                 </div>
             </div>
         </div>
+        <BackToTopButton />
     </AppLayout>
 </template>

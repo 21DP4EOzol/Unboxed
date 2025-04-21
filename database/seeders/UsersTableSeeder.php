@@ -19,16 +19,17 @@ class UsersTableSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
         
-        // Create regular user
-        User::create([
-            'name' => 'Test User',
-            'email' => 'user@unboxed.com',
-            'password' => Hash::make('password'),
-            'is_admin' => false,
-            'email_verified_at' => now(),
-        ]);
+        // Create regular users
+        for ($i = 1; $i <= 9; $i++) {
+            User::create([
+                'name' => "User $i",
+                'email' => "user$i@example.com",
+                'password' => Hash::make('password'),
+                'is_admin' => false,
+                'email_verified_at' => now(),
+            ]);
+        }
         
-        // Create additional test users
-        User::factory(10)->create();
+        $this->command->info('10 users created, including 1 admin.');
     }
 }

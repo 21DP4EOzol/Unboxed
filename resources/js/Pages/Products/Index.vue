@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+import BackToTopButton from '@/Components/BackToTopButton.vue';
 
 const props = defineProps({
     products: Object,
@@ -115,5 +116,6 @@ const changeSort = (sort) => {
                 <Pagination :links="products.links" />
             </div>
         </div>
+        <BackToTopButton />
     </AppLayout>
 </template>
