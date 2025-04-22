@@ -5,7 +5,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
     cartItems: Array,
@@ -15,30 +15,93 @@ const props = defineProps({
 const billingAddressSameAsShipping = ref(true);
 
 const form = useForm({
-    shipping_address: '',
-    billing_address: '',
+    // Shipping information fields
+    shipping_name: '',
+    shipping_street: '',
+    shipping_city: '',
+    shipping_state: '',
+    shipping_zip: '',
+    shipping_country: '',
+    
+    // Billing information fields
+    billing_name: '',
+    billing_street: '',
+    billing_city: '',
+    billing_state: '',
+    billing_zip: '',
+    billing_country: '',
+    
     payment_method: 'credit_card',
     notes: ''
 });
 
 // Update billing address when shipping address changes if the checkbox is checked
+watch([
+    form.shipping_name, 
+    form.shipping_street, 
+    form.shipping_city, 
+    form.shipping_state, 
+    form.shipping_zip, 
+    form.shipping_country
+], () => {
+    if (billingAddressSameAsShipping.value) {
+        updateBillingAddress();
+    }
+}, { deep: true });
+
+// Update billing address fields to match shipping
 const updateBillingAddress = () => {
     if (billingAddressSameAsShipping.value) {
-        form.billing_address = form.shipping_address;
+        form.billing_name = form.shipping_name;
+        form.billing_street = form.shipping_street;
+        form.billing_city = form.shipping_city;
+        form.billing_state = form.shipping_state;
+        form.billing_zip = form.shipping_zip;
+        form.billing_country = form.shipping_country;
     }
 };
 
-// Toggle billing address field
+// Toggle billing address fields
 const toggleBillingAddress = () => {
     if (billingAddressSameAsShipping.value) {
-        form.billing_address = form.shipping_address;
+        updateBillingAddress();
     } else {
-        form.billing_address = '';
+        form.billing_name = '';
+        form.billing_street = '';
+        form.billing_city = '';
+        form.billing_state = '';
+        form.billing_zip = '';
+        form.billing_country = '';
     }
+};
+
+// Format shipping address for backend
+const formatShippingAddress = () => {
+    return `${form.shipping_name}
+${form.shipping_street}
+${form.shipping_city}, ${form.shipping_state} ${form.shipping_zip}
+${form.shipping_country}`;
+};
+
+// Format billing address for backend
+const formatBillingAddress = () => {
+    return `${form.billing_name}
+${form.billing_street}
+${form.billing_city}, ${form.billing_state} ${form.billing_zip}
+${form.billing_country}`;
 };
 
 const submitOrder = () => {
-    form.post(route('checkout.process'));
+    // Process the form and format the addresses for the backend
+    const formData = {
+        shipping_address: formatShippingAddress(),
+        billing_address: formatBillingAddress(),
+        payment_method: form.payment_method,
+        notes: form.notes
+    };
+    
+    // Post the formatted data
+    form.post(route('checkout.process'), formData);
 };
 </script>
 
@@ -60,18 +123,83 @@ const submitOrder = () => {
                             <div class="p-6">
                                 <h3 class="text-lg font-bold text-coffee-800 mb-4">Shipping Information</h3>
                                 
+                                <!-- Full Name -->
                                 <div class="mb-4">
-                                    <InputLabel for="shipping_address" value="Shipping Address" />
-                                    <textarea 
-                                        id="shipping_address" 
-                                        v-model="form.shipping_address" 
-                                        class="mt-1 block w-full border-gray-300 focus:border-coffee-500 focus:ring-coffee-500 rounded-md shadow-sm" 
-                                        rows="4"
-                                        @input="updateBillingAddress"
+                                    <InputLabel for="shipping_name" value="Full Name" />
+                                    <TextInput
+                                        id="shipping_name"
+                                        type="text"
+                                        class="mt-1 block w-full"
+                                        v-model="form.shipping_name"
                                         required
-                                    ></textarea>
-                                    <InputError class="mt-2" :message="form.errors.shipping_address" />
-                                    <p class="mt-1 text-sm text-coffee-500">Please enter your full shipping address including name, street, city, state, zip, and country.</p>
+                                        autofocus
+                                    />
+                                    <InputError class="mt-2" :message="form.errors.shipping_name" />
+                                </div>
+                                
+                                <!-- Street Address -->
+                                <div class="mb-4">
+                                    <InputLabel for="shipping_street" value="Street Address" />
+                                    <TextInput
+                                        id="shipping_street"
+                                        type="text"
+                                        class="mt-1 block w-full"
+                                        v-model="form.shipping_street"
+                                        required
+                                    />
+                                    <InputError class="mt-2" :message="form.errors.shipping_street" />
+                                </div>
+                                
+                                <!-- City, State, Zip Code (in a grid) -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <InputLabel for="shipping_city" value="City" />
+                                        <TextInput
+                                            id="shipping_city"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            v-model="form.shipping_city"
+                                            required
+                                        />
+                                        <InputError class="mt-2" :message="form.errors.shipping_city" />
+                                    </div>
+                                    
+                                    <div>
+                                        <InputLabel for="shipping_state" value="State/Province" />
+                                        <TextInput
+                                            id="shipping_state"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            v-model="form.shipping_state"
+                                            required
+                                        />
+                                        <InputError class="mt-2" :message="form.errors.shipping_state" />
+                                    </div>
+                                    
+                                    <div>
+                                        <InputLabel for="shipping_zip" value="Zip/Postal Code" />
+                                        <TextInput
+                                            id="shipping_zip"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            v-model="form.shipping_zip"
+                                            required
+                                        />
+                                        <InputError class="mt-2" :message="form.errors.shipping_zip" />
+                                    </div>
+                                </div>
+                                
+                                <!-- Country -->
+                                <div class="mb-4">
+                                    <InputLabel for="shipping_country" value="Country" />
+                                    <TextInput
+                                        id="shipping_country"
+                                        type="text"
+                                        class="mt-1 block w-full"
+                                        v-model="form.shipping_country"
+                                        required
+                                    />
+                                    <InputError class="mt-2" :message="form.errors.shipping_country" />
                                 </div>
                                 
                                 <div class="flex items-center mb-4">
@@ -85,16 +213,87 @@ const submitOrder = () => {
                                     <label for="same_address" class="ml-2 text-coffee-700">Billing address same as shipping</label>
                                 </div>
                                 
-                                <div v-if="!billingAddressSameAsShipping" class="mb-4">
-                                    <InputLabel for="billing_address" value="Billing Address" />
-                                    <textarea 
-                                        id="billing_address" 
-                                        v-model="form.billing_address" 
-                                        class="mt-1 block w-full border-gray-300 focus:border-coffee-500 focus:ring-coffee-500 rounded-md shadow-sm" 
-                                        rows="4"
-                                        required
-                                    ></textarea>
-                                    <InputError class="mt-2" :message="form.errors.billing_address" />
+                                <!-- Billing Address Section (shown when checkbox is unchecked) -->
+                                <div v-if="!billingAddressSameAsShipping">
+                                    <h4 class="text-md font-semibold text-coffee-700 mt-4 mb-2">Billing Information</h4>
+                                    
+                                    <!-- Full Name -->
+                                    <div class="mb-4">
+                                        <InputLabel for="billing_name" value="Full Name" />
+                                        <TextInput
+                                            id="billing_name"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            v-model="form.billing_name"
+                                            required
+                                        />
+                                        <InputError class="mt-2" :message="form.errors.billing_name" />
+                                    </div>
+                                    
+                                    <!-- Street Address -->
+                                    <div class="mb-4">
+                                        <InputLabel for="billing_street" value="Street Address" />
+                                        <TextInput
+                                            id="billing_street"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            v-model="form.billing_street"
+                                            required
+                                        />
+                                        <InputError class="mt-2" :message="form.errors.billing_street" />
+                                    </div>
+                                    
+                                    <!-- City, State, Zip Code -->
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                        <div>
+                                            <InputLabel for="billing_city" value="City" />
+                                            <TextInput
+                                                id="billing_city"
+                                                type="text"
+                                                class="mt-1 block w-full"
+                                                v-model="form.billing_city"
+                                                required
+                                            />
+                                            <InputError class="mt-2" :message="form.errors.billing_city" />
+                                        </div>
+                                        
+                                        <div>
+                                            <InputLabel for="billing_state" value="State/Province" />
+                                            <TextInput
+                                                id="billing_state"
+                                                type="text"
+                                                class="mt-1 block w-full"
+                                                v-model="form.billing_state"
+                                                required
+                                            />
+                                            <InputError class="mt-2" :message="form.errors.billing_state" />
+                                        </div>
+                                        
+                                        <div>
+                                            <InputLabel for="billing_zip" value="Zip/Postal Code" />
+                                            <TextInput
+                                                id="billing_zip"
+                                                type="text"
+                                                class="mt-1 block w-full"
+                                                v-model="form.billing_zip"
+                                                required
+                                            />
+                                            <InputError class="mt-2" :message="form.errors.billing_zip" />
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Country -->
+                                    <div class="mb-4">
+                                        <InputLabel for="billing_country" value="Country" />
+                                        <TextInput
+                                            id="billing_country"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            v-model="form.billing_country"
+                                            required
+                                        />
+                                        <InputError class="mt-2" :message="form.errors.billing_country" />
+                                    </div>
                                 </div>
                             </div>
                         </div>

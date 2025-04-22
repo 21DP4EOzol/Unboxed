@@ -23,6 +23,12 @@ const getStatusClass = (status) => {
             return 'bg-gray-100 text-gray-800';
     }
 };
+
+// Format address from multi-line string to HTML
+const formatAddress = (address) => {
+    if (!address) return '';
+    return address.replace(/\n/g, '<br>');
+};
 </script>
 
 <template>
@@ -50,7 +56,7 @@ const getStatusClass = (status) => {
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h3 class="text-lg font-bold text-coffee-800 mb-4">Order Information</h3>
+                                <h3 class="text-lg font-semibold text-coffee-800 mb-4">Order Information</h3>
                                 <div class="space-y-2">
                                     <div class="flex justify-between border-b border-coffee-100 pb-2">
                                         <span class="text-coffee-600">Order Number:</span>
@@ -88,14 +94,14 @@ const getStatusClass = (status) => {
                             </div>
                             
                             <div>
-                                <h3 class="text-lg font-bold text-coffee-800 mb-4">Shipping Information</h3>
+                                <h3 class="text-lg font-semibold text-coffee-800 mb-4">Shipping Information</h3>
                                 <div class="p-3 bg-cream-50 rounded border border-coffee-100 mb-4">
-                                    <div v-html="order.shipping_address.replace(/\n/g, '<br>')"></div>
+                                    <div v-html="formatAddress(order.shipping_address)"></div>
                                 </div>
                                 
-                                <h3 class="text-lg font-bold text-coffee-800 mb-4">Billing Information</h3>
+                                <h3 class="text-lg font-semibold text-coffee-800 mb-4">Billing Information</h3>
                                 <div class="p-3 bg-cream-50 rounded border border-coffee-100">
-                                    <div v-html="order.billing_address.replace(/\n/g, '<br>')"></div>
+                                    <div v-html="formatAddress(order.billing_address)"></div>
                                 </div>
                             </div>
                         </div>
@@ -105,7 +111,7 @@ const getStatusClass = (status) => {
                 <!-- Order Items -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-coffee-200 mb-6">
                     <div class="p-6">
-                        <h3 class="text-lg font-bold text-coffee-800 mb-4">Order Items</h3>
+                        <h3 class="text-lg font-semibold text-coffee-800 mb-4">Order Items</h3>
                         
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
@@ -160,10 +166,20 @@ const getStatusClass = (status) => {
                     </div>
                 </div>
                 
+                <!-- Order Notes -->
+                <div v-if="order.notes" class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-coffee-200 mb-6">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-coffee-800 mb-4">Order Notes</h3>
+                        <div class="p-4 bg-cream-50 rounded border border-coffee-100">
+                            <p class="text-coffee-800">{{ order.notes }}</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Next Steps -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-coffee-200">
                     <div class="p-6">
-                        <h3 class="text-lg font-bold text-coffee-800 mb-4">Next Steps</h3>
+                        <h3 class="text-lg font-semibold text-coffee-800 mb-4">Next Steps</h3>
                         <p class="text-coffee-600 mb-4">You will receive an email confirmation shortly at {{ order.user.email }}.</p>
                         <p class="text-coffee-600 mb-6">We will notify you when your order has been shipped.</p>
                         
@@ -171,8 +187,8 @@ const getStatusClass = (status) => {
                             <Link :href="route('home')" class="px-6 py-2 bg-coffee-600 text-white rounded-md hover:bg-coffee-700 transition">
                                 Continue Shopping
                             </Link>
-                            <Link :href="route('dashboard')" class="px-6 py-2 border border-coffee-400 text-coffee-700 rounded-md hover:bg-coffee-50 transition">
-                                Go to Dashboard
+                            <Link :href="route('orders.index')" class="px-6 py-2 border border-coffee-400 text-coffee-700 rounded-md hover:bg-coffee-50 transition">
+                                View Your Orders
                             </Link>
                         </div>
                     </div>
