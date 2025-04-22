@@ -159,12 +159,24 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        // Check if product has order items before deleting
+        if ($product->orderItems()->count() > 0) {
+            return redirect()->route('admin.products.index')
+                ->with('error', 'Cannot delete product because it has associated order items. Consider deactivating it instead.');
+        }
+        
         // Delete product images
         if (!empty($product->images)) {
             foreach ($product->images as $image) {
                 Storage::disk('public')->delete($image);
             }
         }
+        
+        // Remove category associations
+        $product->categories()->detach();
+        
+        // Delete any swipes related to this product
+        $product->swipes()->delete();
         
         // Delete product
         $product->delete();

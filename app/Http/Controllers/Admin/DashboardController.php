@@ -26,20 +26,31 @@ class DashboardController extends Controller
         $activeUsers = User::where('last_login_at', '>=', $activeThreshold)->count();
         $inactiveUsers = $totalUsers - $activeUsers;
         
-        // Get top selling products (based on order items)
-        $topSellingProducts = Product::select('products.*', DB::raw('SUM(order_items.quantity) as total_sold'))
-            ->join('order_items', 'products.id', '=', 'order_items.product_id')
-            ->groupBy('products.id')
+        // Get top selling products using a subquery approach to avoid GROUP BY issues
+        $topSellingProducts = Product::with('categories')
+            ->select('products.*')
+            ->leftJoin(
+                DB::raw('(SELECT product_id, SUM(quantity) as total_sold FROM order_items GROUP BY product_id) as order_totals'),
+                'products.id',
+                '=',
+                'order_totals.product_id'
+            )
+            ->addSelect(DB::raw('COALESCE(order_totals.total_sold, 0) as total_sold'))
             ->orderBy('total_sold', 'desc')
             ->take(5)
             ->get();
             
         // Get least selling products
-        $leastSellingProducts = Product::select('products.*', 
-                DB::raw('COALESCE(SUM(order_items.quantity), 0) as total_sold'))
-            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+        $leastSellingProducts = Product::with('categories')
+            ->select('products.*')
+            ->leftJoin(
+                DB::raw('(SELECT product_id, SUM(quantity) as total_sold FROM order_items GROUP BY product_id) as order_totals'),
+                'products.id',
+                '=',
+                'order_totals.product_id'
+            )
             ->where('products.active', true) // Only include active products
-            ->groupBy('products.id')
+            ->addSelect(DB::raw('COALESCE(order_totals.total_sold, 0) as total_sold'))
             ->orderBy('total_sold', 'asc')
             ->take(5)
             ->get();
