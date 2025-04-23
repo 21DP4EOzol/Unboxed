@@ -1,11 +1,13 @@
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { ref, watch } from 'vue';
+import { watch } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     cartItems: Array,
@@ -13,9 +15,17 @@ const props = defineProps({
 });
 
 const billingAddressSameAsShipping = ref(true);
+const isProcessing = ref(false);
+const paymentStatus = ref('');
+const paymentError = ref('');
+const stripe = ref(null);
+const elements = ref(null);
+const card = ref(null);
+const cardError = ref('');
+const clientSecret = ref('');
 
 const form = useForm({
-    // Shipping information fields
+    // Your existing form fields
     shipping_name: '',
     shipping_street: '',
     shipping_city: '',
@@ -23,7 +33,6 @@ const form = useForm({
     shipping_zip: '',
     shipping_country: '',
     
-    // Billing information fields
     billing_name: '',
     billing_street: '',
     billing_city: '',
@@ -32,24 +41,52 @@ const form = useForm({
     billing_country: '',
     
     payment_method: 'credit_card',
+    payment_intent_id: '', // Added for Stripe
     notes: ''
 });
 
-// Update billing address when shipping address changes if the checkbox is checked
-watch([
-    form.shipping_name, 
-    form.shipping_street, 
-    form.shipping_city, 
-    form.shipping_state, 
-    form.shipping_zip, 
-    form.shipping_country
-], () => {
-    if (billingAddressSameAsShipping.value) {
-        updateBillingAddress();
-    }
-}, { deep: true });
+// Initialize Stripe on component mount
+onMounted(() => {
+    // Initialize Stripe with your publishable key
+    stripe.value = Stripe(import.meta.env.VITE_STRIPE_KEY);
+    
+    // Create a payment intent when the page loads
+    createPaymentIntent();
+});
 
-// Update billing address fields to match shipping
+// Function to create a payment intent
+const createPaymentIntent = async () => {
+    try {
+        const response = await axios.post(route('checkout.payment-intent'));
+        clientSecret.value = response.data.clientSecret;
+        
+        // Initialize Stripe Elements
+        elements.value = stripe.value.elements({
+            clientSecret: clientSecret.value
+        });
+        
+        // Create card element
+        card.value = elements.value.create('card');
+        
+        // Mount the card element to the DOM
+        setTimeout(() => {
+            const cardElement = document.getElementById('card-element');
+            if (cardElement) {
+                card.value.mount('#card-element');
+                
+                // Handle card validation errors
+                card.value.on('change', (event) => {
+                    cardError.value = event.error ? event.error.message : '';
+                });
+            }
+        }, 100);
+    } catch (error) {
+        paymentError.value = 'Failed to initialize payment system. Please try again later.';
+        console.error('Payment intent creation error:', error);
+    }
+};
+
+// Keep your existing address functions
 const updateBillingAddress = () => {
     if (billingAddressSameAsShipping.value) {
         form.billing_name = form.shipping_name;
@@ -61,7 +98,6 @@ const updateBillingAddress = () => {
     }
 };
 
-// Toggle billing address fields
 const toggleBillingAddress = () => {
     if (billingAddressSameAsShipping.value) {
         updateBillingAddress();
@@ -75,7 +111,7 @@ const toggleBillingAddress = () => {
     }
 };
 
-// Format shipping address for backend
+// Format shipping address
 const formatShippingAddress = () => {
     return `${form.shipping_name}
 ${form.shipping_street}
@@ -83,7 +119,7 @@ ${form.shipping_city}, ${form.shipping_state} ${form.shipping_zip}
 ${form.shipping_country}`;
 };
 
-// Format billing address for backend
+// Format billing address
 const formatBillingAddress = () => {
     return `${form.billing_name}
 ${form.billing_street}
@@ -91,18 +127,94 @@ ${form.billing_city}, ${form.billing_state} ${form.billing_zip}
 ${form.billing_country}`;
 };
 
-const submitOrder = () => {
-    // Process the form and format the addresses for the backend
-    const formData = {
-        shipping_address: formatShippingAddress(),
-        billing_address: formatBillingAddress(),
-        payment_method: form.payment_method,
-        notes: form.notes
-    };
+// Update the submitOrder function to process the payment with Stripe
+const submitOrder = async () => {
+    if (isProcessing.value) return;
     
-    // Post the formatted data
-    form.post(route('checkout.process'), formData);
+    // Basic validation
+    if (!form.shipping_name || !form.shipping_street || !form.shipping_city || 
+        !form.shipping_state || !form.shipping_zip || !form.shipping_country) {
+        alert('Please fill out all shipping information fields');
+        return;
+    }
+    
+    if (!billingAddressSameAsShipping.value && 
+        (!form.billing_name || !form.billing_street || !form.billing_city || 
+         !form.billing_state || !form.billing_zip || !form.billing_country)) {
+        alert('Please fill out all billing information fields');
+        return;
+    }
+    
+    isProcessing.value = true;
+    paymentStatus.value = 'Processing payment...';
+    
+    try {
+        // Confirm card payment with Stripe
+        const { paymentIntent, error } = await stripe.value.confirmCardPayment(
+            clientSecret.value, {
+                payment_method: {
+                    card: card.value,
+                    billing_details: {
+                        name: form.billing_name || form.shipping_name,
+                        address: {
+                            line1: form.billing_street || form.shipping_street,
+                            city: form.billing_city || form.shipping_city,
+                            state: form.billing_state || form.shipping_state,
+                            postal_code: form.billing_zip || form.shipping_zip,
+                            country: form.billing_country || form.shipping_country,
+                        }
+                    }
+                }
+            }
+        );
+        
+        if (error) {
+            // Show error to your customer
+            paymentError.value = error.message;
+            isProcessing.value = false;
+            return;
+        }
+        
+        if (paymentIntent.status === 'succeeded') {
+            // The payment was successful
+            paymentStatus.value = 'Payment successful!';
+            
+            // Add the payment intent ID to the form
+            form.payment_intent_id = paymentIntent.id;
+            
+            // Process the form and format the addresses for the backend
+            const formData = {
+                shipping_address: formatShippingAddress(),
+                billing_address: formatBillingAddress(),
+                payment_method: form.payment_method,
+                payment_intent_id: form.payment_intent_id,
+                notes: form.notes
+            };
+            
+            // Post the formatted data
+            form.post(route('checkout.process'), formData);
+        }
+    } catch (error) {
+        paymentError.value = 'An error occurred during payment processing. Please try again.';
+        console.error('Payment processing error:', error);
+    } finally {
+        isProcessing.value = false;
+    }
 };
+
+// Watch for shipping address changes
+watch([
+    () => form.shipping_name, 
+    () => form.shipping_street, 
+    () => form.shipping_city, 
+    () => form.shipping_state, 
+    () => form.shipping_zip, 
+    () => form.shipping_country
+], () => {
+    if (billingAddressSameAsShipping.value) {
+        updateBillingAddress();
+    }
+});
 </script>
 
 <template>
@@ -298,101 +410,40 @@ const submitOrder = () => {
                             </div>
                         </div>
                         
-                        <!-- Payment Information -->
+                        <!-- Payment Information - Updated to use Stripe -->
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-coffee-200">
                             <div class="p-6">
                                 <h3 class="text-lg font-bold text-coffee-800 mb-4">Payment Information</h3>
                                 
-                                <div class="mb-4">
-                                    <InputLabel for="payment_method" value="Payment Method" />
-                                    <div class="mt-2 space-y-2">
-                                        <div class="flex items-center">
-                                            <input 
-                                                type="radio" 
-                                                id="credit_card" 
-                                                value="credit_card" 
-                                                v-model="form.payment_method"
-                                                class="rounded-full border-gray-300 text-coffee-600 shadow-sm focus:ring-coffee-500"
-                                            />
-                                            <label for="credit_card" class="ml-2 text-coffee-700">Credit Card</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input 
-                                                type="radio" 
-                                                id="paypal" 
-                                                value="paypal" 
-                                                v-model="form.payment_method"
-                                                class="rounded-full border-gray-300 text-coffee-600 shadow-sm focus:ring-coffee-500"
-                                            />
-                                            <label for="paypal" class="ml-2 text-coffee-700">PayPal</label>
-                                        </div>
-                                    </div>
-                                    <InputError class="mt-2" :message="form.errors.payment_method" />
-                                </div>
-                                
-                                <!-- Credit Card Fields (simplified for demo) -->
-                                <div v-if="form.payment_method === 'credit_card'" class="border p-4 rounded-md border-coffee-200 bg-cream-50">
-                                    <p class="text-sm text-center text-coffee-500 italic mb-3">
-                                        Note: This is a demo application. No actual payment will be processed.
+                                <!-- Stripe Card Element -->
+                                <div class="mt-4 p-4 border rounded-md border-coffee-200 bg-cream-50">
+                                    <p class="text-sm text-coffee-600 mb-4">
+                                        Enter your card details below. Your information is securely processed by Stripe.
                                     </p>
+                                    <div id="card-element" class="p-3 border border-coffee-300 rounded-md bg-white"></div>
                                     
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                        <div>
-                                            <InputLabel for="card_number" value="Card Number" />
-                                            <TextInput 
-                                                id="card_number" 
-                                                type="text" 
-                                                class="mt-1 block w-full" 
-                                                placeholder="1234 5678 9012 3456"
-                                                disabled
-                                            />
-                                        </div>
-                                        <div>
-                                            <InputLabel for="card_name" value="Name on Card" />
-                                            <TextInput 
-                                                id="card_name" 
-                                                type="text" 
-                                                class="mt-1 block w-full" 
-                                                placeholder="John Doe"
-                                                disabled
-                                            />
-                                        </div>
-                                    </div>
+                                    <!-- Display card errors -->
+                                    <div v-if="cardError" class="mt-2 text-red-600 text-sm">{{ cardError }}</div>
                                     
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <InputLabel for="expiry" value="Expiry Date" />
-                                            <TextInput 
-                                                id="expiry" 
-                                                type="text" 
-                                                class="mt-1 block w-full" 
-                                                placeholder="MM/YY"
-                                                disabled
-                                            />
-                                        </div>
-                                        <div>
-                                            <InputLabel for="cvv" value="CVV" />
-                                            <TextInput 
-                                                id="cvv" 
-                                                type="text" 
-                                                class="mt-1 block w-full" 
-                                                placeholder="123"
-                                                disabled
-                                            />
-                                        </div>
+                                    <!-- Display payment processing status -->
+                                    <div v-if="paymentStatus" class="mt-2 text-coffee-600 text-sm">{{ paymentStatus }}</div>
+                                    
+                                    <!-- Display payment errors -->
+                                    <div v-if="paymentError" class="mt-2 text-red-600 text-sm">{{ paymentError }}</div>
+                                    
+                                    <div class="mt-4 text-sm text-coffee-500">
+                                        <p>Test cards (use any future expiry date and any 3-digit CVC):</p>
+                                        <ul class="ml-5 list-disc">
+                                            <li>Success: 4242 4242 4242 4242</li>
+                                            <li>Requires authentication: 4000 0025 0000 3155</li>
+                                            <li>Declined: 4000 0000 0000 0002</li>
+                                        </ul>
                                     </div>
-                                </div>
-                                
-                                <!-- PayPal info (simplified for demo) -->
-                                <div v-if="form.payment_method === 'paypal'" class="border p-4 rounded-md border-coffee-200 bg-cream-50">
-                                    <p class="text-sm text-center text-coffee-500 italic">
-                                        Note: This is a demo application. You will be redirected to PayPal in a real application.
-                                    </p>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Order Notes -->
+                        <!-- Order Notes (keep your existing implementation) -->
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-coffee-200">
                             <div class="p-6">
                                 <h3 class="text-lg font-bold text-coffee-800 mb-4">Order Notes (Optional)</h3>
@@ -462,10 +513,10 @@ const submitOrder = () => {
                                 <div class="mt-6">
                                     <PrimaryButton
                                         class="w-full py-3 justify-center"
-                                        :disabled="form.processing"
+                                        :disabled="form.processing || isProcessing"
                                         @click="submitOrder"
                                     >
-                                        Place Order
+                                        {{ isProcessing ? 'Processing...' : 'Place Order' }}
                                     </PrimaryButton>
                                 </div>
                             </div>

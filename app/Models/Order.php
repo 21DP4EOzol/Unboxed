@@ -19,6 +19,8 @@ class Order extends Model
         'payment_method',
         'payment_status',
         'notes',
+        'payment_intent_id',
+        'payment_method_details',
     ];
     
     // Relationships

@@ -8,6 +8,9 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Stripe\Stripe;
+use Stripe\PaymentIntent;
+use Stripe\Exception\ApiErrorException;
 
 class CheckoutController extends Controller
 {
@@ -40,7 +43,8 @@ class CheckoutController extends Controller
         $validated = $request->validate([
             'shipping_address' => 'required|string',
             'billing_address' => 'required|string',
-            'payment_method' => 'required|in:credit_card,paypal',
+            'payment_method' => 'required|string',
+            'payment_intent_id' => 'required|string', // New field for Stripe
             'notes' => 'nullable|string',
         ]);
         
@@ -55,54 +59,64 @@ class CheckoutController extends Controller
         // Calculate cart total
         $cartTotal = $this->calculateCartTotal($cartItems);
         
-        // Create a new order
-        $order = Order::create([
-            'user_id' => auth()->id(),
-            'order_number' => 'ORD-' . strtoupper(Str::random(10)),
-            'total_amount' => $cartTotal,
-            'status' => 'pending',
-            'shipping_address' => $validated['shipping_address'],
-            'billing_address' => $validated['billing_address'],
-            'payment_method' => $validated['payment_method'],
-            'payment_status' => 'pending', // Initially set to pending
-            'notes' => $validated['notes'] ?? null,
-        ]);
+        // Verify payment with Stripe
+        Stripe::setApiKey(config('services.stripe.secret'));
         
-        // Create order items
-        foreach ($cartItems as $item) {
-            // Make sure we're passing the id as an integer, not a string that might contain other info
-            $productId = (int)$item['id'];
+        try {
+            $paymentIntent = PaymentIntent::retrieve($validated['payment_intent_id']);
             
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $productId,
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-                'subtotal' => $item['subtotal'],
-                'size' => $item['size'] ?? null,
-                'color' => $item['color'] ?? null,
+            // Verify the payment is complete
+            if ($paymentIntent->status !== 'succeeded') {
+                return redirect()->route('checkout.index')->with('error', 'Payment was not successful. Please try again.');
+            }
+            
+            // Create a new order
+            $order = Order::create([
+                'user_id' => auth()->id(),
+                'order_number' => 'ORD-' . strtoupper(Str::random(10)),
+                'total_amount' => $cartTotal,
+                'status' => 'pending',
+                'shipping_address' => $validated['shipping_address'],
+                'billing_address' => $validated['billing_address'],
+                'payment_method' => $validated['payment_method'],
+                'payment_status' => 'paid', // Set as paid since Stripe confirmed the payment
+                'notes' => $validated['notes'] ?? null,
+                'payment_intent_id' => $validated['payment_intent_id'], // Store the payment intent ID
+                'payment_method_details' => json_encode($paymentIntent->payment_method_details ?? null),
             ]);
             
-            // Update product stock
-            $product = Product::find($productId);
-            if ($product) {
-                $product->stock -= $item['quantity'];
-                $product->save();
+            // Create order items (keep your existing code here)
+            foreach ($cartItems as $item) {
+                // Make sure we're passing the id as an integer, not a string that might contain other info
+                $productId = (int)$item['id'];
+                
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $productId,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'subtotal' => $item['subtotal'],
+                    'size' => $item['size'] ?? null,
+                    'color' => $item['color'] ?? null,
+                ]);
+                
+                // Update product stock
+                $product = Product::find($productId);
+                if ($product) {
+                    $product->stock -= $item['quantity'];
+                    $product->save();
+                }
             }
+            
+            // Clear the cart
+            session()->forget('cart');
+            
+            // Redirect to the order confirmation page
+            return redirect()->route('checkout.confirmation', $order->id);
+            
+        } catch (ApiErrorException $e) {
+            return redirect()->route('checkout.index')->with('error', 'An error occurred while processing your payment: ' . $e->getMessage());
         }
-        
-        // In a real application, you would process the payment here
-        // and update the payment_status accordingly
-        
-        // For simplicity, we'll just simulate a successful payment
-        $order->payment_status = 'paid';
-        $order->save();
-        
-        // Clear the cart
-        session()->forget('cart');
-        
-        // Redirect to the order confirmation page
-        return redirect()->route('checkout.confirmation', $order->id);
     }
     
     /**
@@ -182,5 +196,35 @@ class CheckoutController extends Controller
         }
         
         return $total;
+    }
+
+    public function createPaymentIntent(Request $request)
+    {
+        // Calculate total amount from cart
+        $cartItems = $this->getCartItems();
+        $cartTotal = $this->calculateCartTotal($cartItems);
+        
+        // Amount for Stripe needs to be in cents
+        $amountInCents = (int)($cartTotal * 100);
+        
+        Stripe::setApiKey(config('services.stripe.secret'));
+        
+        try {
+            $paymentIntent = PaymentIntent::create([
+                'amount' => $amountInCents,
+                'currency' => 'usd',
+                'metadata' => [
+                    'user_id' => auth()->id()
+                ],
+            ]);
+            
+            return response()->json([
+                'clientSecret' => $paymentIntent->client_secret,
+            ]);
+        } catch (ApiErrorException $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
