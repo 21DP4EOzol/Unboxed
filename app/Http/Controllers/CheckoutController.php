@@ -19,6 +19,7 @@ class CheckoutController extends Controller
      */
     public function index()
     {
+        
         // Get cart items
         $cartItems = $this->getCartItems();
         $cartTotal = $this->calculateCartTotal($cartItems);

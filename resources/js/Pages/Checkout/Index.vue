@@ -42,7 +42,11 @@ const form = useForm({
     
     payment_method: 'credit_card',
     payment_intent_id: '', // Added for Stripe
-    notes: ''
+    notes: '',
+    
+    // Add these fields to match what the backend expects
+    shipping_address: '',
+    billing_address: ''
 });
 
 // Initialize Stripe on component mount
@@ -239,20 +243,22 @@ const submitOrder = async () => {
             // The payment was successful
             paymentStatus.value = 'Payment successful!';
             
-            // Add the payment intent ID to the form
+            // Set the form data directly
+            form.shipping_address = formatShippingAddress();
+            form.billing_address = formatBillingAddress();
+            form.payment_method = 'credit_card';
             form.payment_intent_id = paymentIntent.id;
             
-            // Process the form and format the addresses for the backend
-            const formData = {
-                shipping_address: formatShippingAddress(),
-                billing_address: formatBillingAddress(),
-                payment_method: form.payment_method,
-                payment_intent_id: form.payment_intent_id,
-                notes: form.notes
-            };
-            
-            // Post the formatted data
-            form.post(route('checkout.process'), formData);
+            // Submit the form
+            form.post(route('checkout.process'), {
+                onSuccess: () => {
+                    isProcessing.value = false;
+                },
+                onError: (errors) => {
+                    paymentError.value = 'The payment was successful, but we could not complete your order. Please contact support.';
+                    isProcessing.value = false;
+                }
+            });
         } else {
             // Handle other payment intent statuses
             paymentError.value = `Payment status: ${paymentIntent.status}. Please try again.`;
