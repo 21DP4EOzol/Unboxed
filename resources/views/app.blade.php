@@ -10,10 +10,12 @@
         <link rel="icon" type="image/svg+xml" href="/favicon.svg">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        <!-- Stripe JS -->
+        <script src="https://js.stripe.com/v3/"></script>
+
         <!-- Scripts -->
         @routes
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
-        <script src="https://js.stripe.com/v3/"></script>
         @inertiaHead
     </head>
     <body class="font-sans antialiased">

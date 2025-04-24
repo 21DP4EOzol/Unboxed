@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import InputError from '@/Components/InputError.vue';
@@ -47,16 +47,47 @@ const form = useForm({
 
 // Initialize Stripe on component mount
 onMounted(() => {
-    // Initialize Stripe with your publishable key
-    stripe.value = Stripe(import.meta.env.VITE_STRIPE_KEY);
-    
-    // Create a payment intent when the page loads
-    createPaymentIntent();
+
+    console.log("Component mounted");
+    console.log("VITE_STRIPE_KEY value:", import.meta.env.VITE_STRIPE_KEY);
+    console.log("Is Stripe available:", typeof window.Stripe);
+
+    // Check if Stripe is available in the window object
+    if (window.Stripe) {
+        // Initialize Stripe with your publishable key
+        stripe.value = window.Stripe(import.meta.env.VITE_STRIPE_KEY);
+        
+        // Create a payment intent when the page loads
+        createPaymentIntent();
+    } else {
+        // If Stripe is not available, wait for it to load
+        console.error("Stripe.js not loaded. Waiting for it to load...");
+        
+        // Try again after a short delay
+        setTimeout(() => {
+            if (window.Stripe) {
+                stripe.value = window.Stripe(import.meta.env.VITE_STRIPE_KEY);
+                createPaymentIntent();
+            } else {
+                paymentError.value = "Failed to load Stripe. Please refresh the page and try again.";
+            }
+        }, 1000);
+    }
 });
 
-// Function to create a payment intent
+// Create a payment intent
 const createPaymentIntent = async () => {
+
+    console.log("Creating payment intent");
+    console.log("Stripe initialized:", !!stripe.value);
+
+
     try {
+        if (!stripe.value) {
+            paymentError.value = 'Stripe is not initialized. Please refresh the page.';
+            return;
+        }
+        
         const response = await axios.post(route('checkout.payment-intent'));
         clientSecret.value = response.data.clientSecret;
         
@@ -72,14 +103,22 @@ const createPaymentIntent = async () => {
         setTimeout(() => {
             const cardElement = document.getElementById('card-element');
             if (cardElement) {
-                card.value.mount('#card-element');
-                
-                // Handle card validation errors
-                card.value.on('change', (event) => {
-                    cardError.value = event.error ? event.error.message : '';
-                });
+                try {
+                    card.value.mount('#card-element');
+                    
+                    // Handle card validation errors
+                    card.value.on('change', (event) => {
+                        cardError.value = event.error ? event.error.message : '';
+                    });
+                } catch (mountError) {
+                    console.error('Error mounting card element:', mountError);
+                    paymentError.value = 'Failed to load payment form. Please refresh the page.';
+                }
+            } else {
+                console.error('Card element not found in DOM');
+                paymentError.value = 'Payment form not found. Please refresh the page.';
             }
-        }, 100);
+        }, 300); // Increased timeout to ensure DOM is ready
     } catch (error) {
         paymentError.value = 'Failed to initialize payment system. Please try again later.';
         console.error('Payment intent creation error:', error);
@@ -129,6 +168,15 @@ ${form.billing_country}`;
 
 // Update the submitOrder function to process the payment with Stripe
 const submitOrder = async () => {
+
+    console.log("Submit order called");
+    console.log("Stripe state:", {
+        stripeInitialized: !!stripe.value,
+        cardInitialized: !!card.value,
+        hasClientSecret: !!clientSecret.value
+    });
+
+    
     if (isProcessing.value) return;
     
     // Basic validation
@@ -145,8 +193,20 @@ const submitOrder = async () => {
         return;
     }
     
+    // Check if Stripe and card are properly initialized
+    if (!stripe.value || !card.value || !clientSecret.value) {
+        paymentError.value = 'Payment system is not fully initialized. Please refresh the page and try again.';
+        console.error('Stripe not initialized properly:', { 
+            stripeInitialized: !!stripe.value, 
+            cardInitialized: !!card.value, 
+            hasClientSecret: !!clientSecret.value 
+        });
+        return;
+    }
+    
     isProcessing.value = true;
     paymentStatus.value = 'Processing payment...';
+    paymentError.value = ''; // Clear any previous errors
     
     try {
         // Confirm card payment with Stripe
@@ -193,11 +253,14 @@ const submitOrder = async () => {
             
             // Post the formatted data
             form.post(route('checkout.process'), formData);
+        } else {
+            // Handle other payment intent statuses
+            paymentError.value = `Payment status: ${paymentIntent.status}. Please try again.`;
+            isProcessing.value = false;
         }
     } catch (error) {
         paymentError.value = 'An error occurred during payment processing. Please try again.';
         console.error('Payment processing error:', error);
-    } finally {
         isProcessing.value = false;
     }
 };
