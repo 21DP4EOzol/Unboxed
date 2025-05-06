@@ -18,28 +18,38 @@ defineProps({
 const user = usePage().props.auth.user;
 
 const form = useForm({
+    _method: 'PATCH', // This is important for method spoofing
     name: user.name,
     email: user.email,
     profile_picture: null,
 });
 
-const submit = () => {
-    // Create a FormData object for multipart form data
-    const formData = new FormData();
-    formData.append('_method', 'PATCH'); // Method spoofing for Laravel
-    formData.append('name', form.name);
-    formData.append('email', form.email);
-    
-    if (form.profile_picture) {
-        formData.append('profile_picture', form.profile_picture);
+const preview = ref(null);
+
+// Handle file selection
+const handleFileChange = (e) => {
+    if (e.target.files.length > 0) {
+        form.profile_picture = e.target.files[0];
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.value = e.target.result;
+        };
+        reader.readAsDataURL(form.profile_picture);
     }
-    
-    // Use post with the FormData object
-    form.patch(route('profile.update'), {
+};
+
+const submit = () => {
+    // Use post with the proper method
+    form.post(route('profile.update'), {
+        forceFormData: true, // Force using FormData
         preserveScroll: true,
-        data: formData, // Use the FormData object
-        onFinish: () => {
+        onSuccess: () => {
             form.profile_picture = null;
+        },
+        onError: (errors) => {
+            console.error('Update failed:', errors);
         }
     });
 };
@@ -62,6 +72,8 @@ const submit = () => {
             class="mt-6 space-y-6"
             enctype="multipart/form-data"
         >
+            <input type="hidden" name="_method" value="PATCH"> <!-- Method spoofing -->
+            
             <div>
                 <InputLabel for="name" value="Name" class="text-coffee-700" />
 
@@ -114,6 +126,41 @@ const submit = () => {
                 </div>
             </div>
 
+            <div class="mt-6">
+                <InputLabel for="profile_picture" value="Profile Picture" class="text-coffee-700" />
+                
+                <div class="mt-2 flex items-center">
+                    <!-- Show current profile picture if it exists -->
+                    <div v-if="user.profile_picture && !preview" class="mr-3">
+                        <img :src="`/storage/${user.profile_picture}`" alt="Profile Picture" class="w-16 h-16 rounded-full object-cover" />
+                    </div>
+                    <!-- Show preview if available -->
+                    <div v-else-if="preview" class="mr-3">
+                        <img :src="preview" alt="Preview" class="w-16 h-16 rounded-full object-cover" />
+                    </div>
+                    <!-- Default avatar -->
+                    <div v-else class="mr-3 w-16 h-16 rounded-full bg-coffee-200 flex items-center justify-center text-coffee-700 font-bold text-xl">
+                        {{ user.name.charAt(0).toUpperCase() }}
+                    </div>
+                    
+                    <input 
+                        type="file" 
+                        id="profile_picture" 
+                        @change="handleFileChange"
+                        class="hidden" 
+                        accept="image/*"
+                    />
+                    <label for="profile_picture" class="bg-coffee-600 hover:bg-coffee-700 text-white px-3 py-1 rounded cursor-pointer">
+                        Choose Image
+                    </label>
+                    <span v-if="form.profile_picture" class="ml-3 text-coffee-600">
+                        File selected: {{ form.profile_picture.name }}
+                    </span>
+                </div>
+                
+                <InputError class="mt-2" :message="form.errors.profile_picture" />
+            </div>
+
             <div class="flex items-center gap-4">
                 <PrimaryButton 
                     :disabled="form.processing"
@@ -135,35 +182,6 @@ const submit = () => {
                         Saved.
                     </p>
                 </Transition>
-            </div>
-            <div class="mt-6">
-                <InputLabel for="profile_picture" value="Profile Picture" class="text-coffee-700" />
-                
-                <div class="mt-2 flex items-center">
-                    <!-- Show current profile picture if it exists -->
-                    <div v-if="user.profile_picture" class="mr-3">
-                        <img :src="`/storage/${user.profile_picture}`" alt="Profile Picture" class="w-16 h-16 rounded-full object-cover" />
-                    </div>
-                    <div v-else class="mr-3 w-16 h-16 rounded-full bg-coffee-200 flex items-center justify-center text-coffee-700 font-bold text-xl">
-                        {{ user.name.charAt(0).toUpperCase() }}
-                    </div>
-                    
-                    <input 
-                        type="file" 
-                        id="profile_picture" 
-                        @change="form.profile_picture = $event.target.files[0]"
-                        class="hidden" 
-                        accept="image/*"
-                    />
-                    <label for="profile_picture" class="bg-coffee-600 hover:bg-coffee-700 text-white px-3 py-1 rounded cursor-pointer">
-                        Choose Image
-                    </label>
-                    <span v-if="form.profile_picture" class="ml-3 text-coffee-600">
-                        File selected: {{ form.profile_picture.name }}
-                    </span>
-                </div>
-                
-                <InputError class="mt-2" :message="form.errors.profile_picture" />
             </div>
         </form>
     </section>
