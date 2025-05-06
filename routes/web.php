@@ -11,6 +11,7 @@ use App\Http\Controllers\SwipeController;
 use App\Http\Controllers\RecommendationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 
@@ -33,12 +34,12 @@ Route::get('/', function () {
 })->name('home');
 
 // User authenticated routes
-    Route::middleware(['auth', 'verified', 'two-factor'])->group(function () {
-        Route::get('/dashboard', function () {
-            return Inertia::render('Dashboard');
-        })->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
 
-        
+    
     Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent'])
     ->name('checkout.payment-intent');
     
@@ -68,35 +69,77 @@ Route::get('/', function () {
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
     
-    // User Order History (New)
+    // User Order History
     Route::get('/orders', [App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
+    
+    // Two Factor Authentication Routes
+    Route::prefix('two-factor')->name('two-factor.')->group(function() {
+        Route::get('challenge', [TwoFactorController::class, 'index'])->name('challenge');
+        Route::post('verify', [TwoFactorController::class, 'verify'])->name('verify');
+        Route::post('resend', [TwoFactorController::class, 'resend'])->name('resend');
+        
+        // New routes for enabling/disabling
+        Route::post('enable', function () {
+            $user = Auth::user();
+            $user->generateTwoFactorCode();
+            $user->notify(new App\Notifications\TwoFactorCode());
+            return response()->json(['message' => 'Verification code sent to your email']);
+        })->name('enable');
+        
+        Route::post('confirm', function (Illuminate\Http\Request $request) {
+            $user = Auth::user();
+            
+            if (!$user->two_factor_code || !$user->two_factor_expires_at) {
+                return back()->withErrors(['code' => 'No verification code found. Please try again.']);
+            }
+            
+            if ($request->code == $user->two_factor_code && 
+                \Carbon\Carbon::parse($user->two_factor_expires_at)->gt(now())) {
+                
+                $user->forceFill([
+                    'two_factor_confirmed_at' => now(),
+                ])->save();
+                
+                $user->resetTwoFactorCode();
+                
+                return back();
+            }
+            
+            return back()->withErrors(['code' => 'The verification code is invalid or has expired.']);
+        })->name('confirm');
+        
+        Route::delete('disable', function () {
+            $user = Auth::user();
+            $user->forceFill([
+                'two_factor_confirmed_at' => null,
+                'two_factor_code' => null,
+                'two_factor_expires_at' => null,
+            ])->save();
+            
+            return back();
+        })->name('disable');
+    });
 });
 
-    // Product Routes (can be viewed by guests)
-    Route::get('/products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
-    Route::get('/products/{product}', [App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
+// Product Routes (can be viewed by guests)
+Route::get('/products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{product}', [App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
 
-    Route::get('/categories', [App\Http\Controllers\CategoriesController::class, 'index'])->name('categories.index');
+Route::get('/categories', [App\Http\Controllers\CategoriesController::class, 'index'])->name('categories.index');
 
-    // API Routes
-    Route::prefix('api')->name('api.')->group(function () {
-        Route::get('/search/suggestions', [App\Http\Controllers\Api\SearchController::class, 'suggestions'])->name('search.suggestions');
-    });
+// API Routes
+Route::prefix('api')->name('api.')->group(function () {
+    Route::get('/search/suggestions', [App\Http\Controllers\Api\SearchController::class, 'suggestions'])->name('search.suggestions');
+});
 
-    Route::middleware(['auth'])->group(function () {
-        Route::get('two-factor-challenge', [TwoFactorController::class, 'index'])->name('two-factor.challenge');
-        Route::post('two-factor-challenge', [TwoFactorController::class, 'verify'])->name('two-factor.verify');
-        Route::post('two-factor-challenge/resend', [TwoFactorController::class, 'resend'])->name('two-factor.resend');
-    });
-
-    // Admin routes
-    Route::middleware(['auth', 'verified', 'two-factor', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::resource('products', ProductController::class);
-        Route::resource('categories', CategoryController::class);
-        Route::resource('orders', OrderController::class);
-        Route::patch('/products/{product}/toggle-active', [ProductController::class, 'toggleActive'])->name('products.toggle-active');
-    });
+// Admin routes
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('products', ProductController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('orders', OrderController::class);
+    Route::patch('/products/{product}/toggle-active', [ProductController::class, 'toggleActive'])->name('products.toggle-active');
+});
 
 require __DIR__.'/auth.php';

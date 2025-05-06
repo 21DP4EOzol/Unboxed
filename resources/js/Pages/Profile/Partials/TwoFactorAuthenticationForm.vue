@@ -1,111 +1,105 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { ref, computed, onMounted } from 'vue';
+import { useForm, usePage } from '@inertiajs/vue3';
 import DangerButton from '@/Components/DangerButton.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import Modal from '@/Components/Modal.vue';
+import axios from 'axios';
 
 const props = defineProps({
-    requiresConfirmation: Boolean,
-    twoFactorEnabled: Boolean,
+    twoFactorEnabled: {
+        type: Boolean,
+        default: false
+    },
 });
 
 const enabling = ref(false);
-const confirming = ref(false);
 const disabling = ref(false);
-const qrCode = ref(null);
-const setupKey = ref(null);
-const recoveryCodes = ref([]);
-const showingConfirmation = ref(false);
-const showingRecoveryCodes = ref(false);
+const confirmationMode = ref(false);
+const emailSent = ref(false);
+const emailError = ref('');
+const user = usePage().props.auth.user;
 
-
-const confirmationForm = useForm({
-    code: '',
+const form = useForm({
+    code: ''
 });
 
-const twoFactorEnabled = computed(
-    () => props.twoFactorEnabled || enabling.value
-);
+// Check if 2FA is already enabled
+const isTwoFactorEnabled = computed(() => {
+    return user.two_factor_confirmed_at !== null;
+});
 
-watch(twoFactorEnabled, () => {
-    if (!twoFactorEnabled.value) {
-        confirmationForm.reset();
+onMounted(() => {
+    // If we get redirected back after successful confirmation,
+    // make sure we're not still showing the confirmation form
+    if (isTwoFactorEnabled.value) {
+        confirmationMode.value = false;
     }
 });
 
-const enableTwoFactorAuthentication = () => {
+const enableTwoFactorAuthentication = async () => {
     enabling.value = true;
-
-    useForm({})
-        .post(route('two-factor.enable'), {
-            preserveScroll: true,
-            onSuccess: () => Promise.all([
-                showQrCode(),
-                showSetupKey(),
-                showRecoveryCodes(),
-            ]).then(() => {
-                showingConfirmation.value = true;
-            }),
-        });
+    emailError.value = '';
+    emailSent.value = false;
+    
+    try {
+        await axios.post(route('two-factor.enable'));
+        emailSent.value = true;
+        confirmationMode.value = true;
+    } catch (error) {
+        console.error('Error sending verification code:', error);
+        emailError.value = 'Failed to send verification code. Please try again.';
+    } finally {
+        enabling.value = false;
+    }
 };
 
-const showQrCode = () => {
-    return axios.get(route('two-factor.qr-code')).then(response => {
-        qrCode.value = response.data.svg;
-    });
-};
-
-const showSetupKey = () => {
-    return axios.get(route('two-factor.secret-key')).then(response => {
-        setupKey.value = response.data.secretKey;
-    });
-};
-
-const showRecoveryCodes = () => {
-    return axios.get(route('two-factor.recovery-codes')).then(response => {
-        recoveryCodes.value = response.data;
-        showingRecoveryCodes.value = true;
-    });
+const resendVerificationCode = async () => {
+    enabling.value = true;
+    emailError.value = '';
+    emailSent.value = false;
+    
+    try {
+        await axios.post(route('two-factor.enable'));
+        emailSent.value = true;
+    } catch (error) {
+        console.error('Error sending verification code:', error);
+        emailError.value = 'Failed to send verification code. Please try again.';
+    } finally {
+        enabling.value = false;
+    }
 };
 
 const confirmTwoFactorAuthentication = () => {
-    confirming.value = true;
-
-    confirmationForm.post(route('two-factor.confirm'), {
+    form.post(route('two-factor.confirm'), {
         preserveScroll: true,
-        preserveState: true,
         onSuccess: () => {
-            confirming.value = false;
-            enabling.value = false;
-            showingConfirmation.value = false;
-        },
+            confirmationMode.value = false;
+            window.location.reload();
+        }
     });
 };
 
 const disableTwoFactorAuthentication = () => {
     disabling.value = true;
 
-    useForm({})
-        .delete(route('two-factor.disable'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                disabling.value = false;
-                enabling.value = false;
-            },
-        });
+    useForm({}).delete(route('two-factor.disable'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            disabling.value = false;
+            window.location.reload();
+        },
+        onError: () => {
+            disabling.value = false;
+        }
+    });
 };
 
-const closeConfirmationModal = () => {
-    showingConfirmation.value = false;
-};
-
-const closeRecoveryCodesModal = () => {
-    showingRecoveryCodes.value = false;
+const cancelConfirmation = () => {
+    confirmationMode.value = false;
+    form.reset();
 };
 </script>
 
@@ -117,14 +111,72 @@ const closeRecoveryCodesModal = () => {
             </h2>
 
             <p class="mt-1 text-sm text-coffee-600">
-                Add additional security to your account using two factor authentication.
+                Add additional security to your account using email-based two factor authentication.
             </p>
         </header>
 
         <div class="mt-5 space-y-6">
-            <div v-if="!twoFactorEnabled">
+            <!-- Confirmation Form (shown after enabling) -->
+            <div v-if="confirmationMode && !isTwoFactorEnabled" class="bg-cream-50 p-4 rounded-md border border-coffee-200">
+                <h3 class="font-medium text-coffee-800 mb-2">Complete Two Factor Setup</h3>
+                
+                <div v-if="emailSent" class="mb-4 p-2 bg-green-100 text-green-800 rounded">
+                    Verification code has been sent to your email address.
+                </div>
+                
+                <div v-if="emailError" class="mb-4 p-2 bg-red-100 text-red-800 rounded">
+                    {{ emailError }}
+                </div>
+                
+                <p class="text-sm text-coffee-600 mb-4">
+                    Please enter the 6-digit verification code sent to your email address to complete two-factor authentication setup.
+                </p>
+                
+                <div class="mb-4">
+                    <InputLabel for="code" value="Verification Code" class="text-coffee-700" />
+                    <TextInput
+                        id="code"
+                        v-model="form.code"
+                        type="text"
+                        class="mt-1 block w-full border-coffee-300 focus:border-coffee-500 focus:ring-coffee-500"
+                        required
+                        autofocus
+                    />
+                    <InputError :message="form.errors.code" class="mt-2" />
+                </div>
+                
+                <div class="flex flex-wrap gap-3">
+                    <PrimaryButton 
+                        @click="confirmTwoFactorAuthentication" 
+                        :disabled="form.processing"
+                        class="bg-coffee-600 hover:bg-coffee-700 focus:bg-coffee-700 active:bg-coffee-800 focus:ring-coffee-500"
+                    >
+                        {{ form.processing ? 'Verifying...' : 'Verify' }}
+                    </PrimaryButton>
+                    
+                    <button 
+                        @click="resendVerificationCode"
+                        type="button" 
+                        class="px-4 py-2 bg-coffee-200 text-coffee-800 rounded focus:outline-none hover:bg-coffee-300"
+                        :disabled="enabling"
+                    >
+                        {{ enabling ? 'Sending...' : 'Resend Code' }}
+                    </button>
+                    
+                    <button 
+                        @click="cancelConfirmation"
+                        type="button" 
+                        class="px-4 py-2 bg-coffee-100 text-coffee-800 rounded focus:outline-none hover:bg-coffee-200"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Initial State - Two Factor Not Enabled -->
+            <div v-if="!isTwoFactorEnabled && !confirmationMode">
                 <div class="mb-4 font-medium text-sm text-coffee-700">
-                    When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You may retrieve this token from your email.
+                    When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You will receive this token via email to complete the login process.
                 </div>
 
                 <div class="mt-5">
@@ -138,120 +190,22 @@ const closeRecoveryCodesModal = () => {
                 </div>
             </div>
 
-            <div v-else>
+            <!-- Two Factor Enabled State -->
+            <div v-if="isTwoFactorEnabled && !confirmationMode">
                 <div class="mb-4 font-medium text-sm text-green-600">
-                    Two factor authentication is now enabled. Scan the following QR code using your phone's authenticator application or enter the setup key.
-                </div>
-
-                <div class="mt-4">
-                    <div v-if="qrCode" class="p-4 bg-white rounded-lg border border-coffee-200 inline-block">
-                        <div v-html="qrCode"></div>
-                    </div>
-                </div>
-
-                <div v-if="setupKey" class="mt-4 max-w-xl text-sm text-coffee-700">
-                    <div class="font-bold">Setup Key: <span class="font-mono text-coffee-500">{{ setupKey }}</span></div>
+                    Two factor authentication is now enabled. When you log in, you will need to enter a verification code sent to your email address.
                 </div>
 
                 <div class="mt-5">
-                    <div class="flex space-x-3">
-                        <SecondaryButton 
-                            @click="showRecoveryCodes" 
-                            class="border-coffee-300 text-coffee-700 hover:bg-coffee-50"
-                        >
-                            Show Recovery Codes
-                        </SecondaryButton>
-
-                        <DangerButton 
-                            @click="disableTwoFactorAuthentication" 
-                            :disabled="disabling"
-                            class="bg-coffee-700 hover:bg-coffee-800"
-                        >
-                            {{ disabling ? 'Disabling...' : 'Disable' }}
-                        </DangerButton>
-                    </div>
+                    <DangerButton 
+                        @click="disableTwoFactorAuthentication" 
+                        :disabled="disabling"
+                        class="bg-coffee-700 hover:bg-coffee-800"
+                    >
+                        {{ disabling ? 'Disabling...' : 'Disable' }}
+                    </DangerButton>
                 </div>
             </div>
         </div>
-
-        <!-- Confirmation Modal -->
-        <Modal :show="showingConfirmation" @close="closeConfirmationModal">
-            <div class="p-6">
-                <h2 class="text-lg font-medium text-coffee-800">
-                    Finish enabling two factor authentication
-                </h2>
-
-                <p class="mt-1 text-sm text-coffee-600">
-                    To finish enabling two factor authentication, scan the following QR code using your phone's authenticator application or enter the setup key and provide the generated OTP code.
-                </p>
-
-                <div class="mt-4">
-                    <div v-if="qrCode" class="p-4 bg-white rounded-lg border border-coffee-200 inline-block">
-                        <div v-html="qrCode"></div>
-                    </div>
-                </div>
-
-                <div v-if="setupKey" class="mt-4 text-sm font-medium text-coffee-700">
-                    <div>Setup Key: <span class="font-mono">{{ setupKey }}</span></div>
-                </div>
-
-                <div class="mt-4">
-                    <InputLabel for="code" value="Code" class="text-coffee-700" />
-
-                    <TextInput
-                        id="code"
-                        v-model="confirmationForm.code"
-                        type="text"
-                        class="mt-1 block w-full border-coffee-300 focus:border-coffee-500 focus:ring-coffee-500"
-                        inputmode="numeric"
-                        autofocus
-                        autocomplete="one-time-code"
-                        @keyup.enter="confirmTwoFactorAuthentication"
-                    />
-
-                    <InputError :message="confirmationForm.errors.code" class="mt-2" />
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton @click="closeConfirmationModal" class="border-coffee-300 text-coffee-700 hover:bg-coffee-50">
-                        Cancel
-                    </SecondaryButton>
-
-                    <PrimaryButton
-                        class="ml-3 bg-coffee-600 hover:bg-coffee-700 focus:bg-coffee-700 active:bg-coffee-800 focus:ring-coffee-500"
-                        :class="{ 'opacity-25': confirmationForm.processing }"
-                        :disabled="confirmationForm.processing"
-                        @click="confirmTwoFactorAuthentication"
-                    >
-                        Confirm
-                    </PrimaryButton>
-                </div>
-            </div>
-        </Modal>
-
-        <!-- Recovery Codes Modal -->
-        <Modal :show="showingRecoveryCodes" @close="closeRecoveryCodesModal">
-            <div class="p-6">
-                <h2 class="text-lg font-medium text-coffee-800">
-                    Recovery Codes
-                </h2>
-
-                <p class="mt-1 text-sm text-coffee-600">
-                    Store these recovery codes in a secure password manager. They can be used to recover access to your account if your two factor authentication device is lost.
-                </p>
-
-                <div class="mt-4 bg-cream-50 p-4 rounded-lg border border-coffee-200">
-                    <div v-for="code in recoveryCodes" :key="code" class="text-coffee-800 font-mono text-sm">
-                        {{ code }}
-                    </div>
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton @click="closeRecoveryCodesModal" class="border-coffee-300 text-coffee-700 hover:bg-coffee-50">
-                        Close
-                    </SecondaryButton>
-                </div>
-            </div>
-        </Modal>
     </section>
 </template>

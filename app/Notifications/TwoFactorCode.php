@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Config;
 
 class TwoFactorCode extends Notification
 {
@@ -35,10 +36,12 @@ class TwoFactorCode extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
+            ->from(config('mail.from.address'), config('mail.from.name'))
             ->subject('Two Factor Authentication Code')
-            ->line('Your two factor authentication code is ' . $notifiable->two_factor_code)
-            ->line('This code will expire in 10 minutes')
-            ->line('If you did not request this code, please ignore this message.');
+            ->view('emails.two-factor-code', [
+                'user' => $notifiable,
+                'code' => $notifiable->two_factor_code
+            ]);
     }
 
     /**
