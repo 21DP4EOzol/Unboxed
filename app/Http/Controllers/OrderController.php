@@ -36,20 +36,4 @@ class OrderController extends Controller
             'order' => $order
         ]);
     }
-
-    public function downloadReceipt($id)
-    {
-        $order = Order::with(['items.product', 'user'])
-            ->where('user_id', auth()->id())
-            ->findOrFail($id);
-        
-        $pdf = Pdf::loadView('pdfs.order-receipt', ['order' => $order]);
-        
-        // Use a more explicit approach to force proper downloading
-        $content = $pdf->output();
-        
-        return response($content)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="order-receipt-' . $order->order_number . '.pdf"');
-    }
 }
