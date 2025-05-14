@@ -40,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     
-    Route::get('/orders/{order}/receipt', [App\Http\Controllers\OrderController::class, 'downloadReceipt'])->name('orders.receipt');
+    Route::get('/orders/{order}/receipt', [App\Http\Controllers\PDFController::class, 'downloadOrderReceipt'])->name('orders.receipt');
 
     Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent'])
     ->name('checkout.payment-intent');
@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('challenge', [TwoFactorController::class, 'index'])->name('challenge');
         Route::post('verify', [TwoFactorController::class, 'verify'])->name('verify');
         Route::post('resend', [TwoFactorController::class, 'resend'])->name('resend');
+        
         
         // New routes for enabling/disabling
         Route::post('enable', function () {

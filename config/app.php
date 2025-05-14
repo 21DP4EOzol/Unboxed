@@ -135,7 +135,7 @@ return [
     */
 
     'providers' => [
-    // Laravel Framework Service Providers...
+        // Laravel Framework Service Providers...
         Illuminate\Auth\AuthServiceProvider::class,
         Illuminate\Broadcasting\BroadcastServiceProvider::class,
         Illuminate\Bus\BusServiceProvider::class,
@@ -160,11 +160,19 @@ return [
 
         // Package Service Providers...
         Laravel\Fortify\FortifyServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class, // Add this line
 
         // Application Service Providers...
         App\Providers\AppServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
+    ],
+
+    'aliases' => [
+        'App' => Illuminate\Support\Facades\App::class,
+        'Arr' => Illuminate\Support\Arr::class,
+        'Artisan' => Illuminate\Support\Facades\Artisan::class,
+        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class, 
     ],
     
 

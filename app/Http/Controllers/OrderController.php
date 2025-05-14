@@ -43,8 +43,13 @@ class OrderController extends Controller
             ->where('user_id', auth()->id())
             ->findOrFail($id);
         
-        $pdf = PDF::loadView('pdfs.order-receipt', ['order' => $order]);
+        $pdf = Pdf::loadView('pdfs.order-receipt', ['order' => $order]);
         
-        return $pdf->download('order-receipt-' . $order->order_number . '.pdf');
+        // Use a more explicit approach to force proper downloading
+        $content = $pdf->output();
+        
+        return response($content)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="order-receipt-' . $order->order_number . '.pdf"');
     }
 }
