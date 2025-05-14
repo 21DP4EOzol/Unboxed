@@ -183,12 +183,16 @@ const formatAddress = (address) => {
                         <p class="text-coffee-600 mb-4">You will receive an email confirmation shortly at {{ order.user.email }}.</p>
                         <p class="text-coffee-600 mb-6">We will notify you when your order has been shipped.</p>
                         
-                        <div class="flex flex-wrap gap-4">
+                        <div class="flex flex-wrap gap-4 justify-center">
                             <Link :href="route('home')" class="px-6 py-2 bg-coffee-600 text-white rounded-md hover:bg-coffee-700 transition">
                                 Continue Shopping
                             </Link>
                             <Link :href="route('orders.index')" class="px-6 py-2 border border-coffee-400 text-coffee-700 rounded-md hover:bg-coffee-50 transition">
                                 View Your Orders
+                            </Link>
+                            <!-- Add this download receipt button -->
+                            <Link :href="route('orders.receipt', order.id)" class="px-6 py-2 bg-coffee-800 text-white rounded-md hover:bg-coffee-900 transition" target="_blank">
+                                Download Receipt
                             </Link>
                         </div>
                     </div>

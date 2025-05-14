@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use Stripe\Exception\ApiErrorException;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -108,6 +109,18 @@ class CheckoutController extends Controller
                     $product->save();
                 }
             }
+
+            // Send order confirmation email
+            $user = auth()->user();
+            
+            // Load the order items and products for the email
+            $order->load(['items.product', 'user']);
+            
+            // Send email
+            Mail::send('emails.order-confirmation', ['order' => $order, 'user' => $user], function ($message) use ($user, $order) {
+                $message->to($user->email)
+                        ->subject('Order Confirmation - #' . $order->order_number);
+            });
             
             // Clear the cart
             session()->forget('cart');

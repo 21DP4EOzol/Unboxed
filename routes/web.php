@@ -40,6 +40,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     
+    Route::get('/orders/{order}/receipt', [App\Http\Controllers\OrderController::class, 'downloadReceipt'])->name('orders.receipt');
+
     Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent'])
     ->name('checkout.payment-intent');
     
