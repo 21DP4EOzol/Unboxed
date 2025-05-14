@@ -10,7 +10,7 @@ class PDFController extends Controller
 {
     public function downloadOrderReceipt($id)
     {
-        // Ensure no output has been sent already
+        // Start output buffering to ensure no content is sent before PDF
         if (ob_get_level()) {
             ob_end_clean();
         }
@@ -28,10 +28,20 @@ class PDFController extends Controller
             // Generate the filename
             $filename = 'order-receipt-' . $order->order_number . '.pdf';
             
-            // Make sure PDF output is being handled correctly
-            $pdf = Pdf::loadView('pdfs.order-receipt', ['order' => $order]);
+            // Create the PDF
+            $pdf = PDF::loadView('pdfs.order-receipt', [
+                'order' => $order
+            ]);
             
-            // Add explicit headers
+            // Set explicit PDF options
+            $pdf->setPaper('a4', 'portrait');
+            $pdf->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'sans-serif'
+            ]);
+            
+            // Set headers
             $headers = [
                 'Content-Type' => 'application/pdf',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -39,9 +49,9 @@ class PDFController extends Controller
                 'Pragma' => 'public',
             ];
             
-            Log::info('Returning PDF download');
+            Log::info('Preparing PDF download');
             
-            // Return with explicit headers
+            // Return with headers
             return $pdf->download($filename, $headers);
             
         } catch (\Exception $e) {

@@ -1,16 +1,35 @@
-<!-- resources/views/pdfs/order-receipt-simple.blade.php -->
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>Order Receipt</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12pt; }
-        .header { text-align: center; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
-        .total { font-weight: bold; }
+        body { 
+            font-family: Arial, sans-serif; 
+            font-size: 12pt; 
+            line-height: 1.4;
+            color: #333;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0; 
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: left;
+        }
+        th { 
+            background-color: #f2f2f2; 
+        }
+        .total { 
+            font-weight: bold; 
+        }
     </style>
 </head>
 <body>
