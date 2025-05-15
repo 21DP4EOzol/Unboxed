@@ -62,8 +62,14 @@ const getUserInitials = computed(() => {
                                     <template #trigger>
                                         <button class="flex items-center text-sm font-medium text-white hover:text-cream-200 focus:outline-none transition duration-150 ease-in-out">
                                             <!-- Admin Avatar Circle -->
-                                            <div class="w-8 h-8 rounded-full bg-coffee-700 text-white flex items-center justify-center mr-2 border border-coffee-600">
-                                                {{ getUserInitials }}
+                                            <div class="w-8 h-8 rounded-full bg-coffee-700 text-white flex items-center justify-center mr-2 border border-coffee-600 overflow-hidden">
+                                                <img v-if="user.profile_picture_url" 
+                                                     :src="user.profile_picture_url" 
+                                                     alt="Profile" 
+                                                     class="h-full w-full object-cover" />
+                                                <template v-else>
+                                                    {{ getUserInitials }}
+                                                </template>
                                             </div>
                                             
                                             <div>{{ user.name }}</div>
@@ -124,8 +130,14 @@ const getUserInitials = computed(() => {
                     <div class="pt-4 pb-1 border-t border-coffee-800">
                         <div class="px-4 flex items-center">
                             <!-- Admin Avatar Circle -->
-                            <div class="w-8 h-8 rounded-full bg-coffee-700 text-white flex items-center justify-center mr-3 border border-coffee-600">
-                                {{ getUserInitials }}
+                            <div class="w-8 h-8 rounded-full bg-coffee-700 text-white flex items-center justify-center mr-3 border border-coffee-600 overflow-hidden">
+                                <img v-if="user.profile_picture_url" 
+                                     :src="user.profile_picture_url" 
+                                     alt="Profile" 
+                                     class="h-full w-full object-cover" />
+                                <template v-else>
+                                    {{ getUserInitials }}
+                                </template>
                             </div>
                             <div>
                                 <div class="font-medium text-base text-white">{{ user.name }}</div>

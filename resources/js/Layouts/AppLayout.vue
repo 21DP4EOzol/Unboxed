@@ -99,7 +99,13 @@ const cartItemCount = computed(() => {
                                         <button class="flex items-center text-sm font-medium text-cream-100 hover:text-white hover:border-cream-300 focus:outline-none transition duration-150 ease-in-out group">
                                             <!-- User Avatar Circle - Fixed to be properly round -->
                                             <div class="w-8 h-8 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-2 border border-cream-200 overflow-hidden">
-                                                {{ getUserInitials }}
+                                                <img v-if="user.profile_picture_url" 
+                                                     :src="user.profile_picture_url" 
+                                                     alt="Profile" 
+                                                     class="h-full w-full object-cover" />
+                                                <template v-else>
+                                                    {{ getUserInitials }}
+                                                </template>
                                             </div>
                                             
                                             <!-- Truncate long usernames -->
@@ -193,8 +199,14 @@ const cartItemCount = computed(() => {
                     <div v-if="isLoggedIn" class="pt-4 pb-1 border-t border-coffee-700">
                         <div class="px-4 flex items-center">
                             <!-- User Avatar Circle -->
-                            <div class="w-10 h-10 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-3 border border-cream-200">
-                                {{ getUserInitials }}
+                            <div class="w-10 h-10 rounded-full bg-coffee-600 text-white flex items-center justify-center mr-3 border border-cream-200 overflow-hidden">
+                                <img v-if="user.profile_picture_url" 
+                                     :src="user.profile_picture_url" 
+                                     alt="Profile" 
+                                     class="h-full w-full object-cover" />
+                                <template v-else>
+                                    {{ getUserInitials }}
+                                </template>
                             </div>
                             <div>
                                 <div class="font-medium text-base text-cream-100">{{ user.name }}</div>
