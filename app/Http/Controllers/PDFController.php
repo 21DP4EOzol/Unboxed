@@ -6,7 +6,6 @@ use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 
-
 class PDFController extends Controller
 {
     public function downloadOrderReceipt($id)
@@ -21,27 +20,10 @@ class PDFController extends Controller
             
             Log::info('Order found: ' . $order->order_number);
             
-            // Generate super simple HTML for testing
-            $html = '
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Order Receipt</title>
-            </head>
-            <body>
-                <h1>Order Receipt</h1>
-                <p>Order Number: ' . $order->order_number . '</p>
-                <p>Date: ' . $order->created_at->format('Y-m-d') . '</p>
-                <p>Total: $' . $order->total_amount . '</p>
-            </body>
-            </html>';
+            // Use the blade template instead of inline HTML
+            $pdf = PDF::loadView('pdfs.order-receipt', ['order' => $order]);
             
-            Log::info('Generated simple HTML for testing');
-            
-            // Create PDF directly from the HTML string instead of using a view
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
-            
-            Log::info('PDF loaded from HTML');
+            Log::info('PDF loaded from template');
             
             // Return PDF as download with explicit headers
             $headers = [

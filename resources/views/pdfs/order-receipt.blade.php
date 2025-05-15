@@ -4,297 +4,236 @@
     <meta charset="utf-8">
     <title>Order Receipt</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
+        /* Reset margins and padding */
+        * {
             margin: 0;
             padding: 0;
-            background-color: #fff;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            color: #333;
+            font-size: 12px;
+            padding: 10px;
         }
+        
         .header {
-            background: linear-gradient(135deg, #964B00, #7D3C00);
+            background-color: #964B00;
             color: white;
-            padding: 20px;
+            padding: 10px;
             text-align: center;
-            border-radius: 8px 8px 0 0;
-            margin-bottom: 20px;
-        }
-        .logo {
-            font-size: 30px;
-            font-weight: bold;
+            border-radius: 4px;
             margin-bottom: 10px;
         }
-        .order-number {
+        
+        .header h1 {
             font-size: 18px;
-            font-weight: bold;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f9f3e8;
-            border-radius: 4px;
-            border: 1px dashed #964B00;
-            text-align: center;
-            color: #964B00;
-            margin-bottom: 20px;
+            margin: 0;
         }
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 25px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #964B00;
-            color: #964B00;
-        }
-        .item {
-            display: block;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th {
-            background-color: #f9f3e8;
-            color: #964B00;
-            text-align: left;
-            padding: 10px;
-            border-bottom: 2px solid #964B00;
-        }
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .total-row td {
-            border-top: 2px solid #964B00;
-            font-weight: bold;
+        
+        h2 {
             font-size: 16px;
+            margin: 8px 0;
+            color: #964B00;
         }
-        .address-box {
-            background-color: #f9f3e8;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 10px;
-            border: 1px solid #ddd;
+        
+        h3 {
+            font-size: 14px;
+            margin: 6px 0;
+            color: #964B00;
+            border-bottom: 1px solid #964B00;
+            padding-bottom: 3px;
         }
-        .info-grid {
-            display: block;
-            margin: 20px 0;
-        }
+        
         .info-row {
-            display: block;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
         }
+        
         .info-label {
             font-weight: bold;
             color: #964B00;
-            width: 150px;
             display: inline-block;
+            width: 120px;
         }
-        .info-value {
-            display: inline-block;
-        }
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 12px;
-            color: #777;
-            text-align: center;
-        }
-        .payment-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .payment-paid {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .payment-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .payment-failed {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-processing {
-            background-color: #cce5ff;
-            color: #004085;
-        }
-        .status-shipped {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-        .status-delivered {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-cancelled {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .columns {
-            display: table;
+        
+        table {
             width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 11px;
         }
-        .column {
-            display: table-cell;
-            width: 50%;
-            padding: 10px;
-            vertical-align: top;
+        
+        th {
+            background-color: #f9f3e8;
+            text-align: left;
+            padding: 5px;
+            border-bottom: 1px solid #964B00;
+        }
+        
+        td {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .address-box {
+            background-color: #f9f3e8;
+            padding: 6px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 11px;
+        }
+        
+        .footer {
+            margin-top: 10px;
+            font-size: 10px;
+            text-align: center;
+            color: #777;
+        }
+        
+        .row {
+            display: flex;
+            margin: 0 -5px;
+        }
+        
+        .col {
+            flex: 1;
+            padding: 0 5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .badge-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-failed {
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">Unboxed</div>
-            <div>Order Receipt</div>
-        </div>
-        
-        <div class="order-number">
-            Order #: {{ $order->order_number }}
-        </div>
-        
-        <div class="columns">
-            <div class="column">
-                <div class="section-title">Order Information</div>
-                <div class="info-grid">
-                    <div class="info-row">
-                        <span class="info-label">Order Date:</span>
-                        <span class="info-value">{{ $order->created_at->format('F j, Y') }}</span>
-                    </div>
-                    
-                    <div class="info-row">
-                        <span class="info-label">Payment Method:</span>
-                        <span class="info-value">{{ ucfirst($order->payment_method) }}</span>
-                    </div>
-                    
-                    <div class="info-row">
-                        <span class="info-label">Payment Status:</span>
-                        <span class="info-value">
-                            <span class="payment-badge {{ $order->payment_status == 'paid' ? 'payment-paid' : ($order->payment_status == 'pending' ? 'payment-pending' : 'payment-failed') }}">
-                                {{ ucfirst($order->payment_status) }}
-                            </span>
-                        </span>
-                    </div>
-                    
-                    <div class="info-row">
-                        <span class="info-label">Order Status:</span>
-                        <span class="info-value">
-                            <span class="status-badge status-{{ $order->status }}">
-                                {{ ucfirst($order->status) }}
-                            </span>
-                        </span>
-                    </div>
-                </div>
+    <div class="header">
+        <h1>Unboxed - Order Receipt</h1>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Order #{{ $order->order_number }}</h2>
+        <div>Date: {{ $order->created_at->format('M j, Y') }}</div>
+    </div>
+    
+    <div class="row">
+        <div class="col">
+            <h3>Order Information</h3>
+            <div class="info-row">
+                <span class="info-label">Payment Method:</span>
+                {{ ucfirst($order->payment_method) }}
             </div>
             
-            <div class="column">
-                <div class="section-title">Customer Information</div>
-                <div class="info-grid">
-                    <div class="info-row">
-                        <span class="info-label">Name:</span>
-                        <span class="info-value">{{ $order->user->name }}</span>
-                    </div>
-                    
-                    <div class="info-row">
-                        <span class="info-label">Email:</span>
-                        <span class="info-value">{{ $order->user->email }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="section-title">Order Items</div>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th class="text-right">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($order->items as $item)
-                <tr>
-                    <td>
-                        <strong>{{ $item->product ? $item->product->name : 'Product' }}</strong>
-                        @if($item->size || $item->color)
-                            <br>
-                            <small>
-                                @if($item->size) Size: {{ $item->size }} @endif
-                                @if($item->size && $item->color) | @endif
-                                @if($item->color) Color: {{ $item->color }} @endif
-                            </small>
-                        @endif
-                    </td>
-                    <td>${{ number_format($item->price, 2) }}</td>
-                    <td>{{ $item->quantity }}</td>
-                    <td class="text-right">${{ number_format($item->subtotal, 2) }}</td>
-                </tr>
-                @endforeach
-                <tr class="total-row">
-                    <td colspan="3" class="text-right">Total:</td>
-                    <td class="text-right">${{ number_format($order->total_amount, 2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div class="columns">
-            <div class="column">
-                <div class="section-title">Shipping Address</div>
-                <div class="address-box">
-                    {!! nl2br(e($order->shipping_address)) !!}
-                </div>
+            <div class="info-row">
+                <span class="info-label">Payment Status:</span>
+                <span class="badge {{ $order->payment_status == 'paid' ? 'badge-paid' : ($order->payment_status == 'pending' ? 'badge-pending' : 'badge-failed') }}">
+                    {{ ucfirst($order->payment_status) }}
+                </span>
             </div>
             
-            <div class="column">
-                <div class="section-title">Billing Address</div>
-                <div class="address-box">
-                    {!! nl2br(e($order->billing_address)) !!}
-                </div>
+            <div class="info-row">
+                <span class="info-label">Order Status:</span>
+                {{ ucfirst($order->status) }}
             </div>
         </div>
         
-        @if($order->notes)
-        <div class="section-title">Order Notes</div>
-        <div class="address-box">
-            {{ $order->notes }}
+        <div class="col">
+            <h3>Customer Information</h3>
+            <div class="info-row">
+                <span class="info-label">Name:</span>
+                {{ $order->user->name }}
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Email:</span>
+                {{ $order->user->email }}
+            </div>
         </div>
-        @endif
+    </div>
+    
+    <h3>Order Items</h3>
+    <table>
+        <thead>
+            <tr>
+                <th width="40%">Product</th>
+                <th width="20%">Price</th>
+                <th width="15%">Quantity</th>
+                <th width="25%">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($order->items as $item)
+            <tr>
+                <td>
+                    <strong>{{ $item->product ? $item->product->name : 'Product' }}</strong>
+                    @if($item->size || $item->color)
+                        <br>
+                        <small>
+                            @if($item->size) Size: {{ $item->size }} @endif
+                            @if($item->size && $item->color) | @endif
+                            @if($item->color) Color: {{ $item->color }} @endif
+                        </small>
+                    @endif
+                </td>
+                <td>${{ number_format($item->price, 2) }}</td>
+                <td>{{ $item->quantity }}</td>
+                <td>${{ number_format($item->subtotal, 2) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold;">Total:</td>
+                <td style="font-weight: bold;">${{ number_format($order->total_amount, 2) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <div class="row">
+        <div class="col">
+            <h3>Shipping Address</h3>
+            <div class="address-box">
+                {!! nl2br(e($order->shipping_address)) !!}
+            </div>
+        </div>
         
-        <div class="footer">
-            <p>Thank you for shopping with Unboxed!</p>
-            <p>© {{ date('Y') }} Unboxed. All rights reserved.</p>
-            <p>If you have any questions, please contact us at support@unboxed.com</p>
+        <div class="col">
+            <h3>Billing Address</h3>
+            <div class="address-box">
+                {!! nl2br(e($order->billing_address)) !!}
+            </div>
         </div>
+    </div>
+    
+    @if($order->notes)
+    <h3>Order Notes</h3>
+    <div class="address-box">
+        {{ $order->notes }}
+    </div>
+    @endif
+    
+    <div class="footer">
+        <p>Thank you for shopping with Unboxed! © {{ date('Y') }} Unboxed. All rights reserved.</p>
     </div>
 </body>
 </html>
