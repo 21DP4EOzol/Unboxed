@@ -43,6 +43,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/orders/{order}/receipt', [App\Http\Controllers\PDFController::class, 'downloadOrderReceipt'])
         ->name('orders.receipt');
 
+    Route::get('/test-pdf', function () {
+    $html = '<h1>Test PDF</h1><p>This is a test PDF document.</p>';
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
+    
+    $content = $pdf->output();
+    
+    $response = new \Illuminate\Http\Response($content);
+    $response->header('Content-Type', 'application/pdf');
+    $response->header('Content-Disposition', 'attachment; filename="test.pdf"');
+    $response->header('Content-Length', strlen($content));
+    
+    return $response;
+    });
+
+    
+
     Route::post('/checkout/create-payment-intent', [CheckoutController::class, 'createPaymentIntent'])
     ->name('checkout.payment-intent');
     

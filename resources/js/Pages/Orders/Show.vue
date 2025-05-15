@@ -187,9 +187,10 @@ const getStatusClass = (status) => {
                     <Link :href="route('orders.index')" class="px-6 py-2 border border-coffee-300 text-coffee-700 rounded-md hover:bg-coffee-50 transition mx-2">
                         Back to Orders
                     </Link>
-                    <Link :href="route('orders.receipt', order.id)" class="px-6 py-2 bg-coffee-800 text-white rounded-md hover:bg-coffee-900 transition mx-2" target="_blank">
+                    <!-- MODIFIED: Changed from Link to regular anchor tag with target="_blank" -->
+                    <a :href="route('orders.receipt', order.id)" class="px-6 py-2 bg-coffee-800 text-white rounded-md hover:bg-coffee-900 transition mx-2" target="_blank">
                         Download Receipt
-                    </Link>
+                    </a>
                 </div>
             </div>
         </div>
