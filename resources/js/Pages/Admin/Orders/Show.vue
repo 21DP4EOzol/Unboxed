@@ -66,7 +66,7 @@ const getStatusClass = (status) => {
                                     </div>
                                     <div class="flex justify-between border-b border-coffee-100 pb-2">
                                         <span class="text-coffee-600">Total Amount:</span>
-                                        <span class="text-coffee-800 font-semibold">${{ order.total_amount }}</span>
+                                        <span class="text-coffee-800 font-semibold">€{{ order.total_amount }}</span>
                                     </div>
                                     <div class="flex justify-between border-b border-coffee-100 pb-2">
                                         <span class="text-coffee-600">Payment Method:</span>
@@ -160,15 +160,15 @@ const getStatusClass = (status) => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="py-4 px-4 border-b border-coffee-100 text-center">${{ item.price }}</td>
+                                        <td class="py-4 px-4 border-b border-coffee-100 text-center">€{{ item.price }}</td>
                                         <td class="py-4 px-4 border-b border-coffee-100 text-center">{{ item.quantity }}</td>
-                                        <td class="py-4 px-4 border-b border-coffee-100 text-right font-medium">${{ item.subtotal }}</td>
+                                        <td class="py-4 px-4 border-b border-coffee-100 text-right font-medium">€{{ item.subtotal }}</td>
                                     </tr>
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td colspan="3" class="py-4 px-4 text-right font-semibold text-coffee-700">Total:</td>
-                                        <td class="py-4 px-4 text-right font-bold text-coffee-800">${{ order.total_amount }}</td>
+                                        <td class="py-4 px-4 text-right font-bold text-coffee-800">€{{ order.total_amount }}</td>
                                     </tr>
                                 </tfoot>
                             </table>

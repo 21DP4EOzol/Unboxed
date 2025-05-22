@@ -180,7 +180,7 @@ const showLoginPrompt = ref(true);
                                             <h4 class="text-lg font-semibold text-coffee-800">{{ product.name }}</h4>
                                             <p class="text-coffee-600 text-sm mt-1 line-clamp-2">{{ product.description }}</p>
                                             <div class="mt-4 flex justify-between items-center">
-                                                <span class="font-bold text-coffee-700">${{ product.price }}</span>
+                                                <span class="font-bold text-coffee-700">€{{ product.price }}</span>
                                                 <span class="inline-block px-3 py-1 bg-coffee-600 text-white text-xs rounded-full">
                                                     View Details
                                                 </span>

@@ -262,7 +262,7 @@ const removeSelectedFromHistory = () => {
                                     <h4 class="text-lg font-semibold text-coffee-800">{{ product.name }}</h4>
                                     <p class="text-coffee-600 text-sm mt-1">{{ product.description?.substring(0, 80) }}{{ product.description && product.description.length > 80 ? '...' : '' }}</p>
                                     <div class="mt-2 flex justify-between items-center">
-                                        <span class="font-bold text-coffee-700">${{ product.price }}</span>
+                                        <span class="font-bold text-coffee-700">€{{ product.price }}</span>
                                         <Link v-if="!selectionMode" :href="`/products/${product.id}`" class="text-coffee-600 hover:text-coffee-800 hover:underline">
                                             View Details
                                         </Link>
@@ -329,7 +329,7 @@ const removeSelectedFromHistory = () => {
                                     <h4 class="text-lg font-semibold text-coffee-700">{{ product.name }}</h4>
                                     <p class="text-coffee-500 text-sm mt-1">{{ product.description?.substring(0, 80) }}{{ product.description && product.description.length > 80 ? '...' : '' }}</p>
                                     <div class="mt-2 flex justify-between items-center">
-                                        <span class="font-bold text-coffee-600">${{ product.price }}</span>
+                                        <span class="font-bold text-coffee-600">€{{ product.price }}</span>
                                         <Link v-if="!selectionMode" :href="`/products/${product.id}`" class="text-coffee-500 hover:text-coffee-700 hover:underline">
                                             View Details
                                         </Link>

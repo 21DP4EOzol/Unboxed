@@ -133,12 +133,12 @@
                         @endif
                     @endif
                 </div>
-                <div class="item-price">${{ number_format($item->subtotal, 2) }}</div>
+                <div class="item-price">€{{ number_format($item->subtotal, 2) }}</div>
             </div>
         @endforeach
         
         <div class="total">
-            Total: ${{ number_format($order->total_amount, 2) }}
+            Total: €{{ number_format($order->total_amount, 2) }}
         </div>
         
         <div class="section-title">Shipping Information</div>

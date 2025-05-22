@@ -58,7 +58,7 @@ const getStatusClass = (status) => {
                                         <td class="py-2 px-4 border-b border-coffee-100">{{ order.order_number }}</td>
                                         <td class="py-2 px-4 border-b border-coffee-100">{{ order.user.name }}</td>
                                         <td class="py-2 px-4 border-b border-coffee-100">{{ new Date(order.created_at).toLocaleDateString() }}</td>
-                                        <td class="py-2 px-4 border-b border-coffee-100">${{ order.total_amount }}</td>
+                                        <td class="py-2 px-4 border-b border-coffee-100">€{{ order.total_amount }}</td>
                                         <td class="py-2 px-4 border-b border-coffee-100">
                                             <span class="px-2 py-1 rounded text-xs" :class="getStatusClass(order.status)">
                                                 {{ order.status }}

@@ -554,7 +554,7 @@ watch([
                                                 </div>
                                             </div>
                                         </div>
-                                        <p class="text-coffee-800 font-medium">${{ item.subtotal.toFixed(2) }}</p>
+                                        <p class="text-coffee-800 font-medium">€{{ item.subtotal.toFixed(2) }}</p>
                                     </div>
                                 </div>
                                 
@@ -562,19 +562,19 @@ watch([
                                 <div class="border-t border-coffee-200 pt-4">
                                     <div class="flex justify-between mb-2">
                                         <span class="text-coffee-600">Subtotal:</span>
-                                        <span class="text-coffee-800 font-medium">${{ cartTotal.toFixed(2) }}</span>
+                                        <span class="text-coffee-800 font-medium">€{{ cartTotal.toFixed(2) }}</span>
                                     </div>
                                     <div class="flex justify-between mb-2">
                                         <span class="text-coffee-600">Shipping:</span>
-                                        <span class="text-coffee-800 font-medium">$0.00</span>
+                                        <span class="text-coffee-800 font-medium">€0.00</span>
                                     </div>
                                     <div class="flex justify-between mb-2">
                                         <span class="text-coffee-600">Tax:</span>
-                                        <span class="text-coffee-800 font-medium">$0.00</span>
+                                        <span class="text-coffee-800 font-medium">€0.00</span>
                                     </div>
                                     <div class="flex justify-between pt-2 border-t border-coffee-200">
                                         <span class="text-coffee-800 font-bold">Total:</span>
-                                        <span class="text-coffee-800 font-bold text-xl">${{ cartTotal.toFixed(2) }}</span>
+                                        <span class="text-coffee-800 font-bold text-xl">€{{ cartTotal.toFixed(2) }}</span>
                                     </div>
                                 </div>
                                 

@@ -149,7 +149,7 @@ const getStatusClass = (status) => {
                                     </div>
                                     <div class="flex justify-between pt-2">
                                         <span class="text-coffee-600 font-medium">Total Amount:</span>
-                                        <span class="text-coffee-800 font-bold">${{ order.total_amount }}</span>
+                                        <span class="text-coffee-800 font-bold">€{{ order.total_amount }}</span>
                                     </div>
                                 </div>
                                 
@@ -157,7 +157,7 @@ const getStatusClass = (status) => {
                                 <ul class="space-y-2">
                                     <li v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
                                         <span class="text-coffee-600">{{ item.quantity }}x {{ item.product ? item.product.name : 'Product unavailable' }}</span>
-                                        <span class="text-coffee-800">${{ item.subtotal }}</span>
+                                        <span class="text-coffee-800">€{{ item.subtotal }}</span>
                                     </li>
                                 </ul>
                             </div>

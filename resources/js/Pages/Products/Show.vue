@@ -151,7 +151,7 @@ const hasColorOptions = computed(() => {
                                 
                                 <h1 class="text-3xl font-bold text-coffee-800 mb-2">{{ product.name }}</h1>
                                 
-                                <div class="text-2xl font-bold text-coffee-700 mb-4">${{ product.price }}</div>
+                                <div class="text-2xl font-bold text-coffee-700 mb-4">€{{ product.price }}</div>
                                 
                                 <div class="mb-6">
                                     <p class="text-coffee-600">{{ product.description }}</p>
@@ -285,7 +285,7 @@ const hasColorOptions = computed(() => {
                                 
                                 <div class="p-4">
                                     <h3 class="text-lg font-semibold text-coffee-800 mb-1">{{ product.name }}</h3>
-                                    <div class="text-coffee-700 font-bold">${{ product.price }}</div>
+                                    <div class="text-coffee-700 font-bold">€{{ product.price }}</div>
                                 </div>
                             </Link>
                         </div>

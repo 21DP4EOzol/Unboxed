@@ -144,4 +144,15 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category deleted successfully.');
     }
+
+    public function toggleActive(Category $category)
+    {
+        $category->active = !$category->active;
+        $category->save();
+        
+        $status = $category->active ? 'activated' : 'deactivated';
+        
+        return redirect()->route('admin.categories.index')
+            ->with('success', "Category {$status} successfully.");
+    }
 }

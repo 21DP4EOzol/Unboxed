@@ -294,7 +294,7 @@ onUnmounted(() => {
                                                 {{ item.description.substring(0, 100) }}{{ item.description.length > 100 ? '...' : '' }}
                                             </p>
                                             <div v-if="swipeType === 'product'" class="mt-4 flex justify-between items-center">
-                                                <span class="text-2xl font-bold text-coffee-700">${{ item.price }}</span>
+                                                <span class="text-2xl font-bold text-coffee-700">€{{ item.price }}</span>
                                                 <span class="text-sm text-coffee-500">{{ item.stock }} in stock</span>
                                             </div>
                                             <div v-else class="mt-4">

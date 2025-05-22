@@ -77,7 +77,7 @@ const filterProducts = () => {
                                             </div>
                                         </td>
                                         <td class="py-2 px-4 border-b border-coffee-100">{{ product.name }}</td>
-                                        <td class="py-2 px-4 border-b border-coffee-100">${{ product.price }}</td>
+                                        <td class="py-2 px-4 border-b border-coffee-100">€{{ product.price }}</td>
                                         <td class="py-2 px-4 border-b border-coffee-100">{{ product.stock }}</td>
                                         <td class="py-2 px-4 border-b border-coffee-100">
                                             <span class="px-2 py-1 rounded text-xs" :class="{

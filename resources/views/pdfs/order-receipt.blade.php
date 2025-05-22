@@ -195,16 +195,16 @@
                         </small>
                     @endif
                 </td>
-                <td>${{ number_format($item->price, 2) }}</td>
+                <td>€{{ number_format($item->price, 2) }}</td>
                 <td>{{ $item->quantity }}</td>
-                <td>${{ number_format($item->subtotal, 2) }}</td>
+                <td>€{{ number_format($item->subtotal, 2) }}</td>
             </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="3" style="text-align: right; font-weight: bold;">Total:</td>
-                <td style="font-weight: bold;">${{ number_format($order->total_amount, 2) }}</td>
+                <td style="font-weight: bold;">€{{ number_format($order->total_amount, 2) }}</td>
             </tr>
         </tfoot>
     </table>

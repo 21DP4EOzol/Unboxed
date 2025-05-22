@@ -100,7 +100,7 @@ defineProps({
                                 <h4 class="text-lg font-semibold text-coffee-800">{{ product.name }}</h4>
                                 <p class="text-coffee-600 text-sm mt-1">{{ product.description.substring(0, 60) }}{{ product.description.length > 60 ? '...' : '' }}</p>
                                 <div class="mt-4 flex justify-between items-center">
-                                    <span class="font-bold text-coffee-700">${{ product.price }}</span>
+                                    <span class="font-bold text-coffee-700">€{{ product.price }}</span>
                                     <Link :href="`/products/${product.id}`" class="px-3 py-1 bg-coffee-600 text-white rounded hover:bg-coffee-700 transition">
                                         View Details
                                     </Link>

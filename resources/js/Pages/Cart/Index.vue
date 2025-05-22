@@ -104,7 +104,7 @@ function clearCart() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="py-4 px-4 text-right text-coffee-700">${{ item.price }}</td>
+                                            <td class="py-4 px-4 text-right text-coffee-700">€{{ item.price }}</td>
                                             <td class="py-4 px-4">
                                                 <div class="flex items-center justify-center">
                                                     <button 
@@ -128,7 +128,7 @@ function clearCart() {
                                                     </button>
                                                 </div>
                                             </td>
-                                            <td class="py-4 px-4 text-right text-coffee-800 font-bold">${{ item.subtotal.toFixed(2) }}</td>
+                                            <td class="py-4 px-4 text-right text-coffee-800 font-bold">€{{ item.subtotal.toFixed(2) }}</td>
                                             <td class="py-4 px-4 text-center">
                                                 <button 
                                                     @click="removeItem(item.id)"
@@ -155,7 +155,7 @@ function clearCart() {
                                 <div class="bg-cream-50 p-6 rounded-md">
                                     <div class="flex justify-between mb-2">
                                         <span class="text-coffee-700">Subtotal:</span>
-                                        <span class="text-coffee-800 font-bold">${{ cartTotal.toFixed(2) }}</span>
+                                        <span class="text-coffee-800 font-bold">€{{ cartTotal.toFixed(2) }}</span>
                                     </div>
                                     <div class="flex justify-between mb-4">
                                         <span class="text-coffee-700">Shipping:</span>
@@ -164,7 +164,7 @@ function clearCart() {
                                     <div class="border-t border-coffee-200 pt-4 mb-4">
                                         <div class="flex justify-between">
                                             <span class="text-coffee-800 font-bold">Total:</span>
-                                            <span class="text-coffee-800 font-bold text-xl">${{ cartTotal.toFixed(2) }}</span>
+                                            <span class="text-coffee-800 font-bold text-xl">€{{ cartTotal.toFixed(2) }}</span>
                                         </div>
                                     </div>
                                     
